@@ -3,6 +3,7 @@ package boomit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+
 import javax.swing.*;
 
 public class BoomIt extends JFrame {
@@ -19,8 +20,16 @@ public class BoomIt extends JFrame {
 		setVisible(true);
 		
 	}
+	
 	public static void main(String[] args) {
 		BoomIt f = new BoomIt();
+		f.game.isObstacle(4, 4);	//Create obstacles
+		f.game.isObstacle(4, 5);
+		f.game.isObstacle(3, 4);
+		f.game.isObstacle(10, 12);
+		f.game.isObstacle(10, 11);
+		f.game.isObstacle(10, 9);
+		f.game.isObstacle(9, 8);
 	}
 	
 	private class handler implements KeyListener{
