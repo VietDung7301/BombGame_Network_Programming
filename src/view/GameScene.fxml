@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?package view?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import java.util.ArrayList?>
+
+<BorderPane fx:id="gameScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="725.0" prefWidth="982.0" stylesheets="@layout.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.GameSceneController">
+   <left>
+      <VBox alignment="CENTER" prefHeight="725.0" prefWidth="258.0" styleClass="mission" stylesheets="@layout.css" BorderPane.alignment="CENTER">
+         <children>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <ImageView AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="400.0">
+                     <image>
+                        <Image url="@../../src/images/red_mission.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView layoutX="-3.0" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="0.0">
+                     <image>
+                        <Image url="@../../src/images/white_mission.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView layoutX="-3.0" layoutY="133.0" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="0.0">
+                     <image>
+                        <Image url="@../../src/images/green_mission.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView layoutX="13.0" layoutY="267.0" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="267.0">
+                     <image>
+                        <Image url="@../../src/images/black_mission.png" />
+                     </image>
+                  </ImageView>
+                  <Label fx:id="labelLive1" layoutX="160.0" layoutY="13.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font></Label>
+                  <Label fx:id="labelQtyBomb1" layoutX="160.0" layoutY="37.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelPowBomb1" layoutX="160.0" layoutY="61.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelSpeed1" layoutX="160.0" layoutY="84.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelLive2" layoutX="160.0" layoutY="146.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelQtyBomb2" layoutX="160.0" layoutY="170.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelPowBomb2" layoutX="160.0" layoutY="193.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelSpeed2" layoutX="160.0" layoutY="217.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelLive3" layoutX="160.0" layoutY="280.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelQtyBomb3" layoutX="160.0" layoutY="304.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelPowBomb3" layoutX="160.0" layoutY="327.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelSpeed3" layoutX="160.0" layoutY="351.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelLive4" layoutX="160.0" layoutY="413.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelQtyBomb4" layoutX="160.0" layoutY="436.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelPowBomb4" layoutX="160.0" layoutY="460.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelSpeed4" layoutX="160.0" layoutY="484.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font>
+                  </Label>
+               </children>
+            </AnchorPane>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Label text="TIME">
+                     <font>
+                        <Font name="Arial Black" size="15.0" />
+                     </font></Label>
+                  <Label alignment="CENTER" style="-fx-background-color: #d4ebff; -fx-background-radius: 5px;" text="150">
+                     <padding>
+                        <Insets bottom="2.0" left="10.0" right="10.0" top="2.0" />
+                     </padding>
+                     <font>
+                        <Font name="Arial Bold" size="15.0" />
+                     </font></Label>
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <VBox.margin>
+                  <Insets bottom="20.0" top="20.0" />
+               </VBox.margin>
+            </HBox>
+            <AnchorPane prefHeight="39.0" prefWidth="162.0">
+               <children>
+                  <ImageView layoutX="15.0" AnchorPane.leftAnchor="21.0" AnchorPane.rightAnchor="21.0">
+                     <image>
+                        <Image url="@../../src/images/mission_button.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </ImageView>
+                  <Label layoutX="61.0" layoutY="8.0" text="Pause" textFill="#3c3c3c" AnchorPane.leftAnchor="67.0" AnchorPane.rightAnchor="65.0">
+                     <font>
+                        <Font name="Arial Black" size="15.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Label>
+               </children>
+            </AnchorPane>
+         </children>
+         <padding>
+            <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+         </padding>
+      </VBox>
+   </left>
+   <center>
+      <Pane prefHeight="787.0" prefWidth="810.0" styleClass="outer_gameplay" stylesheets="@layout.css" BorderPane.alignment="CENTER">
+         <children>
+            <AnchorPane id="GameMap" fx:id="gameMap" layoutX="7.0" layoutY="7.0" prefHeight="710.0" prefWidth="710.0" styleClass="gameplay" stylesheets="@layout.css">
+               <children>
+                  <ImageView layoutX="291.0" layoutY="257.0">
+                     <image>
+                        <Image url="@../images/santa_clause.png" />
+                     </image>
+                  </ImageView>
+               </children></AnchorPane>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </Pane>
+   </center>
+   
+</BorderPane>
