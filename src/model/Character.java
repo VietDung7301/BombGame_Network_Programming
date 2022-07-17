@@ -1,6 +1,5 @@
 package model;
 
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public enum Character {
@@ -134,6 +133,14 @@ public enum Character {
 			case RIGHT: posX+= getDisMove();
 				break;
 			default:
+			}
+		}
+	}
+	
+	public void eatItem(Item item) {
+		if (item instanceof LiveItem) {
+			if (this.lives < 10) {
+				this.lives++;
 			}
 		}
 	}

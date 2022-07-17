@@ -9,3 +9,7 @@
 .outer_gameplay {
 	-fx-background-color: linear-gradient(to bottom, #59adf5, #57adf5);
 }
+.guide_scene {
+	-fx-background-image: url('../../src/images/menu/BackGround.jpg');
+	-fx-background-size: 100% 100%;
+}

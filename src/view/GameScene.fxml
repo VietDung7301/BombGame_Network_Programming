@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.*?>
 <?import java.util.ArrayList?>
 
-<BorderPane fx:id="gameScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="725.0" prefWidth="982.0" stylesheets="@layout.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.GameSceneController">
+<BorderPane fx:id="gameScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="725.0" prefWidth="982.0" stylesheets="@layout.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <left>
       <VBox alignment="CENTER" prefHeight="725.0" prefWidth="258.0" styleClass="mission" stylesheets="@layout.css" BorderPane.alignment="CENTER">
          <children>

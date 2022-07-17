@@ -6,4 +6,5 @@ module Boom {
 	
 	opens application to javafx.graphics, javafx.fxml;
 	opens view to javafx.fxml;
+	opens controller to javafx.fxml;
 }

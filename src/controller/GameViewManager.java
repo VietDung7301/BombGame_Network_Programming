@@ -22,6 +22,11 @@ import model.Bomb;
 import model.BombCenter;
 import model.BombLine;
 import model.Character;
+import model.Item;
+import model.LiveItem;
+import model.PowBombItem;
+import model.QtyBombItem;
+import model.SpeedItem;
 
 public class GameViewManager {
 	private static int MAP_SIZE_X = 17;
@@ -59,7 +64,7 @@ public class GameViewManager {
 		{1, 0, 2, 3, 2, 5, 0, 0, 1, 5, 0, 5, 2, 0, 2, 0, 1},
 		{1, 0, 2, 0, 1, 1, 2, 3, 5, 5, 2, 2, 1, 0, 2, 0, 1},
 		{1, 0, 0, 0, 0, 0, 2, 2, 1, 1, 2, 0, 0, 0, 0, 0, 1},
-		{1, 0, 2, 1, 1, 4, 4, 0, 0, 0, 0, 0, 2, 1, 1, 0, 1},
+		{1, 9, 2, 1, 1, 4, 4, 0, 0, 0, 0, 0, 2, 1, 1, 0, 1},
 		{1, 0, 0, 2, 2, 3, 2, 2, 1, 0, 1, 0, 1, 1, 0, 0, 1},
 		{1, 2, 0, 0, 1, 4, 3,-1,-1,-1, 4, 0, 1, 0, 0, 2, 1},
 		{1, 0, 0, 2, 2, 4, 1,-1,-1,-1, 1, 0, 1, 2, 0, 3, 1},
@@ -73,8 +78,6 @@ public class GameViewManager {
 		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 	};
 				
-		
-	
 	AnimationTimer gameTimer;
 	
 	public GameViewManager() {
@@ -243,6 +246,9 @@ public class GameViewManager {
 					break;
 				case 7:
 					createBomb(i, j);
+					break;
+				case 9:
+					createItem(j, i, 1);
 				}
 			}
 		}
@@ -376,7 +382,6 @@ public class GameViewManager {
 				}
 				
 				for (int i = 1; i<=bomb.getLength(); i++) {
-					System.out.println("run here" + map[row][col + 1]);
 					if (map[row][col+i] == 1 || map[row][col+i] == 2 || map[row][col+i] == -1)
 						break;
 					if (map[row][col+i] == 3 || map[row][col+i] == 4 || map[row][col+i] == 5) {
@@ -454,6 +459,29 @@ public class GameViewManager {
 	
 	private void destroyBarrier(int row, int col) {
 		map[row][col] = 0;
+	}
+	
+	private void createItem(int row, int col, int type) {
+		Item item = null;
+		switch (type) {
+		case 1: 
+			item = new LiveItem(41.76 * col + 41.76/2, 41.76 * row + 41.76/2);
+			break;
+		case 2:
+			item = new PowBombItem(41.76 * col + 41.76/2, 41.76 * row + 41.76/2);
+			break;
+		case 3:
+			item = new QtyBombItem(41.76 * col + 41.76/2, 41.76 * row + 41.76/2);
+			break;
+		case 4:
+			item = new SpeedItem(41.76 * col + 41.76/2, 41.76 * row + 41.76/2);
+			break;
+		default:
+			break;
+		}
+		
+		System.out.println("item height " + item.getChildren().isEmpty());
+		gameMap.getChildren().add(item);
 	}
 	
 	private void createBombLine(int x, int y, BombLine bombLine) {
