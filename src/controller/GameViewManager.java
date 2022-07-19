@@ -4,33 +4,31 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import model.Barrier;
-import model.Bomb;
-import model.BombCenter;
-import model.BombLine;
+import model.*;
 import model.Character;
-import model.Item;
-import model.LiveItem;
-import model.PowBombItem;
-import model.QtyBombItem;
-import model.SpeedItem;
 
 public class GameViewManager {
-	private static int MAP_SIZE_X = 17;
-	private static int MAP_SIZE_Y = 17;
+	public static final int MAP_SIZE_X = 17;
+	public static final int MAP_SIZE_Y = 17;
+	public static final double CELL_SIZE = 710.0/17;
+	
+	private int numPlayer;
 	
 	private AnchorPane gameMap;
 	private BorderPane gamePane;
@@ -39,36 +37,51 @@ public class GameViewManager {
 	
 	private Stage menuStage;
 	
-	private boolean isLeftKeyPressed = false;
-	private boolean isRightKeyPressed = false;
-	private boolean isUpKeyPressed = false;
-	private boolean isDownKeyPressed = false;
-	private boolean isBombSeted[] = new boolean[4];
+	private AnchorPane pauseBtn;
+	private Label pauseLabel;
 	
 	private ImageView santaClause;
 	
-	
+	Random randItem = new Random();
 	long timeKey = 0;
 	
-	Character character[] = {Character.WHITE, Character.GREEN, Character.BLACK, Character.RED};
+	private Character[] character;
 	
-	Group charView[];
+	private Label[] liveLabel;
+	private Label[] powBombLabel;
+	private Label[] qtyBombLabel;
+	private Label[] speedLabel;
+	private Label timeLabel;
+	private double timeLeft;
 	
+	
+	private ArrayList<Item> itemList = new ArrayList<Item>();
 	private ArrayList<Bomb> bombList = new ArrayList<Bomb>();
 	private ArrayList<BombLine> bombLineList = new ArrayList<BombLine>();
 	private ArrayList<BombCenter> bombCenterList = new ArrayList<BombCenter>();
 	
-	private int map[][] = {
+//	1: Pine tree
+//	2: Snowman
+//	3: Hat
+//	4: Candle
+//	5: Socks
+//	7: Bomb
+//	9: Santa Clause
+//	-1: Live item
+//	-2: Power item
+//	-3: Quantity item
+//	-4: Speed item
+	private static int map[][] = {
 		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 		{1, 0, 0, 3, 3, 4, 1, 0, 1, 0, 2, 0, 0, 0, 0, 0, 1},
-		{1, 0, 2, 3, 2, 5, 0, 0, 1, 5, 0, 5, 2, 0, 2, 0, 1},
+		{1, 0, 2, 3, 2, 5, 0, 0, 1, 5, 0, 0, 2, 0, 2, 0, 1},
 		{1, 0, 2, 0, 1, 1, 2, 3, 5, 5, 2, 2, 1, 0, 2, 0, 1},
 		{1, 0, 0, 0, 0, 0, 2, 2, 1, 1, 2, 0, 0, 0, 0, 0, 1},
-		{1, 9, 2, 1, 1, 4, 4, 0, 0, 0, 0, 0, 2, 1, 1, 0, 1},
+		{1,-1, 2, 1, 1, 4, 4, 0, 0, 0, 0, 0, 2, 1, 1, 0, 1},
 		{1, 0, 0, 2, 2, 3, 2, 2, 1, 0, 1, 0, 1, 1, 0, 0, 1},
-		{1, 2, 0, 0, 1, 4, 3,-1,-1,-1, 4, 0, 1, 0, 0, 2, 1},
-		{1, 0, 0, 2, 2, 4, 1,-1,-1,-1, 1, 0, 1, 2, 0, 3, 1},
-		{1, 0, 2, 1, 1, 0, 0,-1,-1,-1, 0, 3, 2, 1, 2, 4, 1},
+		{1, 2, 0, 0, 1, 4, 3, 9, 9, 9, 4, 0, 1, 0, 0, 2, 1},
+		{1, 0, 0, 2, 2, 4, 1, 9, 9, 9, 1, 0, 1, 2, 0, 3, 1},
+		{1, 0, 2, 1, 1, 0, 0, 9, 9, 9, 0, 3, 2, 1, 2, 4, 1},
 		{1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 0, 5, 0, 0, 0, 1},
 		{1, 0, 1, 0, 2, 2, 2, 0, 5, 0, 2, 1, 1, 0, 2, 0, 1},
 		{1, 0, 1, 0, 2, 3, 3, 4, 2, 0, 0, 0, 1, 0, 2, 0, 1},
@@ -80,73 +93,15 @@ public class GameViewManager {
 				
 	AnimationTimer gameTimer;
 	
-	public GameViewManager() {
+	public GameViewManager(int numPlayer) {
+		this.numPlayer = numPlayer;
+		this.timeLeft = 150;
 		initializeStage();
+		initializeLabel();
+		initializeButton();
 		initializeCharacter();
 		createKeyListeners();
 	}
-	
-	private void createKeyListeners() {
-		gameScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			@Override
-			public void handle(KeyEvent event) {
-				switch(event.getCode()) {
-					case LEFT:
-						isLeftKeyPressed = true;
-						isRightKeyPressed = false;
-						isUpKeyPressed = false;
-						isDownKeyPressed = false;
-						break;
-					case RIGHT:
-						isLeftKeyPressed = false;
-						isRightKeyPressed = true;
-						isUpKeyPressed = false;
-						isDownKeyPressed = false;
-						break;
-					case UP:
-						isLeftKeyPressed = false;
-						isRightKeyPressed = false;
-						isUpKeyPressed = true;
-						isDownKeyPressed = false;
-						break;
-					case DOWN:
-						isLeftKeyPressed = false;
-						isRightKeyPressed = false;
-						isUpKeyPressed = false;
-						isDownKeyPressed = true;
-						break;
-					case SPACE:
-						isBombSeted[0] = true;
-					default: break;
-				}
-			}
-		});
-		
-		gameScene.setOnKeyReleased(new EventHandler<KeyEvent>() {
-			@Override
-			public void handle(KeyEvent event) {
-				switch(event.getCode()) {
-				case LEFT:
-					isLeftKeyPressed = false;
-					break;
-				case RIGHT:
-					isRightKeyPressed = false;
-					break;
-				case UP:
-					isUpKeyPressed = false;
-					break;
-				case DOWN:
-					isDownKeyPressed = false;
-					break;
-				case SPACE:
-					isBombSeted[0] = false;
-					break;
-				default: break;
-				}
-			}
-		});
-	}
-	
 	
 	private void initializeStage() {
 		try {
@@ -157,8 +112,7 @@ public class GameViewManager {
 			gameStage.setTitle("BomIT");
 			gameStage.setScene(gameScene);
 			
-			gameMap = (AnchorPane) gamePane.lookup("#GameMap");
-			
+			gameMap = (AnchorPane) gamePane.lookup("#GameMap");			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -168,23 +122,117 @@ public class GameViewManager {
 		santaClause.setLayoutY(257.0);
 	}
 	
-	private void initializeCharacter() {
-		charView = new Group[4];
-		character[0].setPosX((double) 1*710/17 - (Character.WIDTH - 710/17)/2 + 1);
-		character[0].setPosY((double) 1*710/17 - Character.HEIGHT + 0.8*Character.WIDTH + 1);
-		
-		character[1].setPosX((double) 15*710/17 - (Character.WIDTH - 710/17)/2 + 1);
-		character[1].setPosY((double) 1*710/17 - Character.HEIGHT + 0.8*Character.WIDTH + 1);
-		
-		character[2].setPosX((double) 1*710/17 - (Character.WIDTH - 710/17)/2 + 1);
-		character[2].setPosY((double) 15*710/17 - Character.HEIGHT + 0.8*Character.WIDTH + 1);
-		
-		character[3].setPosX((double) 15*710/17 - (Character.WIDTH - 710/17)/2 + 1);
-		character[3].setPosY((double) 15*710/17 - Character.HEIGHT + 0.8*Character.WIDTH + 1);
-		
+	private void initializeLabel() {
+		liveLabel = new Label[4];
+		qtyBombLabel = new Label[4];
+		powBombLabel = new Label[4];
+		speedLabel = new Label[4];
 		for (int i=0; i<4; i++) {
-			charView[i] = new Group(character[i].getImage());
+			liveLabel[i] = (Label) gamePane.lookup("#live-label-" + (i+1));
+			qtyBombLabel[i] = (Label) gamePane.lookup("#qtybomb-label-" + (i+1));
+			powBombLabel[i] = (Label) gamePane.lookup("#powbomb-label-" + (i+1));
+			speedLabel[i] = (Label) gamePane.lookup("#speed-label-" + (i+1));
 		}
+		
+		timeLabel = (Label) gamePane.lookup("#time-label");
+	}
+	
+	private void initializeButton() {
+		pauseBtn = (AnchorPane) gamePane.lookup("#pause-btn");
+		pauseLabel = (Label) pauseBtn.lookup("#pause-label");
+		pauseBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent arg0) {
+				if (pauseLabel.getText().equals("Pause")) {
+					gameTimer.stop();
+					pauseLabel.setText("Resume");
+				} else {
+					gameTimer.start();
+					pauseLabel.setText("Pause");
+				}
+				
+			}
+		});
+	}
+	
+	private void createKeyListeners() {
+		gameScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent event) {
+				for (int i=0; i<4; i++) {
+					if (character[i] instanceof Player) {
+						Player player = (Player) character[i];
+						if (event.getCode() == player.getUpKey()) {
+							player.setGoUp(true);
+							player.setGoDown(false);
+							player.setGoLeft(false);
+							player.setGoRight(false);
+						} else if (event.getCode() == player.getDownKey()) {
+							player.setGoUp(false);
+							player.setGoDown(true);
+							player.setGoLeft(false);
+							player.setGoRight(false);
+						} else if (event.getCode() == player.getLeftKey()) {
+							player.setGoUp(false);
+							player.setGoDown(false);
+							player.setGoLeft(true);
+							player.setGoRight(false);
+						} else if (event.getCode() == player.getRightKey()) {
+							player.setGoUp(false);
+							player.setGoDown(false);
+							player.setGoLeft(false);
+							player.setGoRight(true);
+						} else if (event.getCode() == player.getBombKey()) {
+							player.setPlantingBomb(true);
+						}
+					}
+				}
+			}
+		});
+		
+		gameScene.setOnKeyReleased(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent event) {
+				for (int i=0; i<4; i++) {
+					if (character[i] instanceof Player) {
+						Player player = (Player) character[i];
+						if (event.getCode() == player.getUpKey()) {
+							player.setGoUp(false);
+						} else if (event.getCode() == player.getDownKey()) {
+							player.setGoDown(false);
+						} else if (event.getCode() == player.getLeftKey()) {
+							player.setGoLeft(false);
+						} else if (event.getCode() == player.getRightKey()) {
+							player.setGoRight(false);
+						} else if (event.getCode() == player.getBombKey()) {
+							player.setPlantingBomb(false);
+						}
+					}
+				}
+			}
+		});
+	}
+	
+	
+	
+	private void initializeCharacter() {
+		Bot bot;
+		character = new Character[4];
+		if (numPlayer == 1) {
+			character[0] = new Player(0, 1.5*CELL_SIZE, 1.5*CELL_SIZE, KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, KeyCode.SPACE);
+			character[1] = new Bot(0, (MAP_SIZE_X-1.5) * CELL_SIZE, 1.5*CELL_SIZE);
+			bot = (Bot) character[1];
+			bot.autoPlay(character, map);
+		} else if (numPlayer == 2) {
+			character[0] = new Player(0, 1.5*CELL_SIZE, 1.5*CELL_SIZE, KeyCode.W, KeyCode.S, KeyCode.A, KeyCode.D, KeyCode.SPACE);
+			character[1] = new Player(0, (MAP_SIZE_X-1.5) * CELL_SIZE, 1.5*CELL_SIZE, KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, KeyCode.ENTER);
+		}
+		character[2] = new Bot(1, 1.5*CELL_SIZE, (MAP_SIZE_Y-1.5) * CELL_SIZE);
+		bot = (Bot) character[2];
+		bot.autoPlay(character, map);
+		character[3] = new Bot(1, (MAP_SIZE_X-1.5) * CELL_SIZE, (MAP_SIZE_Y-1.5) * CELL_SIZE);
+		bot = (Bot) character[3];
+		bot.autoPlay(character, map);
 	}
 	
 	
@@ -204,10 +252,14 @@ public class GameViewManager {
 			@Override
 			public void handle(long now) {
 				if (now - lastUpdate >= 30_000_000) {
+					timeLeft -= 0.01;
+					timeLabel.setText("" + (int) timeLeft);
 					moveCharacter();
 					setBomb();
 					bombBoom();
 					createGameElement();
+					eatItems();
+					updateLabel();
 					createBoomAnimation();
 				}
 			}
@@ -216,12 +268,13 @@ public class GameViewManager {
 	}
 	
 	private void createGameElement() {
+		itemList.clear();
 		gameMap.getChildren().clear();
 		for (int j=0; j<MAP_SIZE_Y; j++) {
 			for (int c = 0; c<4; c++) {
-				if (getCharacterRow(character[c].getPosY() + 5) == j) {
+				if (Character.getCharacterRow(character[c].getLayoutY() + 20) == j) {
 					if (character[c].getLives() > 0)
-						createCharacter(charView[c], character[c]);
+						createCharacter(character[c]);
 				}
 			}
 			if (j == 7) {
@@ -247,98 +300,53 @@ public class GameViewManager {
 				case 7:
 					createBomb(i, j);
 					break;
-				case 9:
-					createItem(j, i, 1);
+				case -1:
+				case -2:
+				case -3:
+				case -4:
+					createItem(j, i, map[j][i]);
 				}
 			}
 		}
 	}
 	
 	private void moveCharacter() {
-		boolean moveAnimation = false;
-		boolean movable = true;
-		
-		if (System.currentTimeMillis() - timeKey >= 100) {
-			timeKey = System.currentTimeMillis();
-			moveAnimation = true;
+		for (int i=0; i<4; i++) {
+			if (character[i].isGoDown()) {
+				character[i].move(Character.DOWN, map, CELL_SIZE);
+			} else if (character[i].isGoUP()) {
+				character[i].move(Character.UP, map, CELL_SIZE);
+			} else if (character[i].isGoLeft()) {
+				character[i].move(Character.LEFT, map, CELL_SIZE);
+			} else if (character[i].isGoRight()) {
+				character[i].move(Character.RIGHT, map, CELL_SIZE);
+			}
+			
+			if (character[i].isGoDown() == false
+				&& character[i].isGoUP() == false
+				&& character[i].isGoLeft() == false
+				&& character[i].isGoRight() == false ) {
+					character[i].stop();
+				}
 		}
 		
-		int currentCol = getCharacterCol(character[0].getPosX() + 20);
-		int currentRow = getCharacterRow(character[0].getPosY() + 15);
-		
-		if (isDownKeyPressed) {
-			int row = getCharacterRow(character[0].getPosY() + 41 + character[0].getDisMove());
-			int colL = getCharacterCol(character[0].getPosX() + 5);
-			int colR = getCharacterCol(character[0].getPosX() + 36);
-			
-			if ((map[row][colL] != 0 || map[row][colR] != 0)) {
-				movable = false;
-				if (map[currentRow][currentCol] == 7 && (currentRow == row) && (currentCol == colL || currentCol == colR))
-					movable = true;
-			}
-			character[0].move(Character.DOWN, movable, moveAnimation);
-		} else if (isUpKeyPressed) {
-			int row = getCharacterRow(character[0].getPosY() - character[0].getDisMove());
-			int colL = getCharacterCol(character[0].getPosX() + 5);
-			int colR = getCharacterCol(character[0].getPosX() + 36);
-			
-			if (map[row][colL] != 0 || map[row][colR] != 0) {
-				movable = false;
-				if (map[currentRow][currentCol] == 7 && (currentRow == row) && (currentCol == colL || currentCol == colR))
-					movable = true;
-			}
-			character[0].move(Character.UP, movable, moveAnimation);
-		} else if (isLeftKeyPressed) {
-			int col = getCharacterCol(character[0].getPosX() - character[0].getDisMove());
-			int rowL = getCharacterRow(character[0].getPosY() + 5);
-			int rowR = getCharacterRow(character[0].getPosY() + 36);
-			
-			if (map[rowL][col] != 0 || map[rowR][col] != 0) {
-				movable = false;
-				if (map[currentRow][currentCol] == 7 && (currentCol == col) && (currentRow == rowL || currentRow == rowR))
-					movable = true;
-			}
-			character[0].move(Character.LEFT, movable, moveAnimation);
-		} else if (isRightKeyPressed) {
-			int col = getCharacterCol(character[0].getPosX() + 41 + character[0].getDisMove());
-			int rowL = getCharacterRow(character[0].getPosY() + 5);
-			int rowR = getCharacterRow(character[0].getPosY() + 36);
-			
-			if (map[rowL][col] != 0 || map[rowR][col] != 0) {
-				movable = false;
-				if (map[currentRow][currentCol] == 7 && (currentCol == col) && (currentRow == rowL || currentRow == rowR))
-					movable = true;
-			}
-			character[0].move(Character.RIGHT, movable, moveAnimation);
-		}
-		
-		if (isLeftKeyPressed == false
-			&& isRightKeyPressed == false
-			&& isUpKeyPressed == false
-			&& isDownKeyPressed == false ) {
-				character[0].resetCurrentImage();
-			}
-		
-		charView[0].getChildren().setAll(character[0].getImage());
-		charView[0].setLayoutX(character[0].getPosX());
-		charView[0].setLayoutY(character[0].getPosY());
 	}
 	
 	private void setBomb() {
 		for (int i=0; i<4; i++) {
-			int col = getCharacterCol(character[i].getPosX() + 20);
-			int row = getCharacterRow(character[i].getPosY() + 15);
+			int col = Character.getCharacterCol(character[i].getLayoutX() + 20);
+			int row = Character.getCharacterRow(character[i].getLayoutY() + 15);
 
-			if (isBombSeted[i]) {
+			if (character[i].isPlantingBomb()) {
 				if (map[row][col] == 0 && character[i].isCanSetBomb() == true) {
-					character[i].setBomb();
+					Bomb bomb = character[i].setBomb(row, col);
 					map[row][col] = 7;
-					bombList.add(new Bomb(character[i].getPowBomb(), i, row, col));
+					bombList.add(bomb);
 				}
-				
 			}
 		}
 	}
+	
 	private void bombBoom() {
 		Iterator<Bomb> iter = bombList.iterator();
 		int row, col;
@@ -348,7 +356,7 @@ public class GameViewManager {
 				row = bomb.getInRow();
 				col = bomb.getInCol();
 				map[row][col] = 0;
-				character[bomb.getOwner()].restoreBomb();
+				bomb.getOwner().restoreBomb();
 				
 				long timeBoom = System.currentTimeMillis();
 				
@@ -357,55 +365,27 @@ public class GameViewManager {
 				createBombCenter(row, col, bombCenter);
 				
 				
-				for (int i = 1; i<=bomb.getLength(); i++) {
-					if (map[row-i][col] == 1 || map[row-i][col] == 2 || map[row-i][col] == -1)
-						break;
-					if (map[row-i][col] == 3 || map[row-i][col] == 4 || map[row-i][col] == 5) {
-						destroyBarrier(row-i, col);
-						break;
-					}
-					BombLine bombLine = new BombLine(row-i, col, 0, timeBoom);
-					bombLineList.add(bombLine);
-					createBombLine(row-i, col, bombLine);
-				}
+				int[] ar = {-1, 0, 1, 0};
+				int[] ac = {0, -1, 0, 1};
+				boolean[] isBlocked = {false, false, false, false};
 				
 				for (int i = 1; i<=bomb.getLength(); i++) {
-					if (map[row+i][col] == 1 || map[row+i][col] == 2 || map[row+i][col] == -1)
-						break;
-					if (map[row+i][col] == 3 || map[row+i][col] == 4 || map[row+i][col] == 5) {
-						destroyBarrier(row+i, col);
-						break;
+					for (int j=0; j<4; j++) {
+						if (!isBlocked[j]) {
+							if (map[row + ar[j]*i][col + ac[j]*i] == 1 || map[row + ar[j]*i][col + ac[j]*i] == 2 || map[row + ar[j]*i][col + ac[j]*i] == 9) {
+								isBlocked[j] = true;
+								continue;
+							}
+							if (map[row + ar[j]*i][col + ac[j]*i] == 3 || map[row + ar[j]*i][col + ac[j]*i] == 4 || map[row + ar[j]*i][col + ac[j]*i] == 5) {
+								destroyBarrier(row + ar[j]*i, col + ac[j]*i);
+								isBlocked[j] = true;
+								continue;
+							}
+							BombLine bombLine = new BombLine(row + ar[j]*i, col + ac[j]*i, Math.abs(ac[j] * 90), timeBoom);
+							bombLineList.add(bombLine);
+							createBombLine(row + ar[j]*i, col + ac[j]*i, bombLine);						
+						}						
 					}
-					BombLine bombLine = new BombLine(row+i, col, 0, timeBoom);
-					bombLineList.add(bombLine);
-					createBombLine(row+i, col, bombLine);
-				}
-				
-				for (int i = 1; i<=bomb.getLength(); i++) {
-					if (map[row][col+i] == 1 || map[row][col+i] == 2 || map[row][col+i] == -1)
-						break;
-					if (map[row][col+i] == 3 || map[row][col+i] == 4 || map[row][col+i] == 5) {
-						destroyBarrier(row, col+i);
-						break;
-					}
-					
-					BombLine bombLine = new BombLine(row, col+i, 90, timeBoom);
-					bombLineList.add(bombLine);
-					createBombLine(row, col+i, bombLine);
-				}
-				
-				for (int i = 1; i<=bomb.getLength(); i++) {
-					System.out.println("run here" + map[row][col + 1]);
-					if (map[row][col-i] == 1 || map[row][col-i] == 2 || map[row][col-i] == -1)
-						break;
-					if (map[row][col-i] == 3 || map[row][col-i] == 4 || map[row][col-i] == 5) {
-						destroyBarrier(row, col-i);
-						break;
-					}
-					
-					BombLine bombLine = new BombLine(row, col-i, 90, timeBoom);
-					bombLineList.add(bombLine);
-					createBombLine(row, col-i, bombLine);
 				}
 				
 				iter.remove();
@@ -423,9 +403,9 @@ public class GameViewManager {
 				continue;
 			}
 			for (int i=0; i<4; i++) {
-				if (bombLine.getInCol() == getCharacterCol(character[i].getPosX() + 20)
-					&& bombLine.getInRow() == getCharacterRow(character[i].getPosY() + 20) ) {
-						character[i].decreaseLives();
+				if (bombLine.getInCol() == Character.getCharacterCol(character[i].getLayoutX() + 20)
+					&& bombLine.getInRow() == Character.getCharacterRow(character[i].getLayoutY() + 20) ) {
+						character[i].decreaseLive();
 					}
 						
 			}
@@ -439,9 +419,9 @@ public class GameViewManager {
 				continue;
 			}
 			for (int i=0; i<4; i++) {
-				if (bombCenter.getInCol() == getCharacterCol(character[i].getPosX() + 20)
-					&& bombCenter.getInRow() == getCharacterRow(character[i].getPosY() + 20) ) {
-						character[i].decreaseLives();
+				if (bombCenter.getInCol() == Character.getCharacterCol(character[i].getLayoutX() + 20)
+					&& bombCenter.getInRow() == Character.getCharacterRow(character[i].getLayoutY() + 20) ) {
+						character[i].decreaseLive();
 					}
 						
 			}
@@ -452,69 +432,82 @@ public class GameViewManager {
 	private void createBarrier(int x, int y, Barrier barrier) {
 		Image barrierImage = barrier.getImage();
 		ImageView barrierView = new ImageView(barrierImage);
-		barrierView.setLayoutX((double) x*710/17 - (barrierImage.getWidth() - 710/17)/2);
-		barrierView.setLayoutY((double) y*710/17 - barrierImage.getHeight() + barrierImage.getWidth());
+		barrierView.setLayoutX((double) x*CELL_SIZE - (barrierImage.getWidth() - CELL_SIZE)/2);
+		barrierView.setLayoutY((double) y*CELL_SIZE - barrierImage.getHeight() + barrierImage.getWidth());
 		gameMap.getChildren().add(barrierView);
 	}
 	
 	private void destroyBarrier(int row, int col) {
-		map[row][col] = 0;
+		map[row][col] = -(randItem.nextInt(4) + 1);
 	}
 	
 	private void createItem(int row, int col, int type) {
 		Item item = null;
 		switch (type) {
-		case 1: 
-			item = new LiveItem(41.76 * col + 41.76/2, 41.76 * row + 41.76/2);
+		case -1: 
+			item = new LiveItem(row, col, CELL_SIZE);
 			break;
-		case 2:
-			item = new PowBombItem(41.76 * col + 41.76/2, 41.76 * row + 41.76/2);
+		case -2:
+			item = new PowBombItem(row, col, CELL_SIZE);
 			break;
-		case 3:
-			item = new QtyBombItem(41.76 * col + 41.76/2, 41.76 * row + 41.76/2);
+		case -3:
+			item = new QtyBombItem(row, col, CELL_SIZE);
 			break;
-		case 4:
-			item = new SpeedItem(41.76 * col + 41.76/2, 41.76 * row + 41.76/2);
+		case -4:
+			item = new SpeedItem(row, col, CELL_SIZE);
 			break;
 		default:
 			break;
 		}
-		
-		System.out.println("item height " + item.getChildren().isEmpty());
+		itemList.add(item);
 		gameMap.getChildren().add(item);
 	}
 	
+	private void eatItems() {
+		Iterator<Item> iter = itemList.iterator();
+		while (iter.hasNext()) {
+			Item item = iter.next();
+			for (int i=0; i<4; i++) {
+				if (item.getInCol() == Character.getCharacterCol(character[i].getLayoutX() + 20)
+				&& item.getInRow() == Character.getCharacterRow(character[i].getLayoutY() + 20) ) {
+					item.beAte(character[i]);
+					map[item.getInRow()][item.getInCol()] = 0;
+					iter.remove();
+					break;
+				}
+			}
+		}
+	}
+	
+	private void updateLabel() {
+		for (int i=0; i<4; i++) {
+			liveLabel[i].setText("" + character[i].getLives());
+			qtyBombLabel[i].setText("" + character[i].getQtyBomb());
+			powBombLabel[i].setText("" + character[i].getPowBomb());
+			speedLabel[i].setText("" + character[i].getSpeed());
+		}
+	}
+	
 	private void createBombLine(int x, int y, BombLine bombLine) {
-		bombLine.getImage().setLayoutX((double) x * 710/17 + (710.0/17 - bombLine.getWidth()) / 2);
-		bombLine.getImage().setLayoutY((double) y * 710/17 + (710.0/17 - bombLine.getHeight()) / 2);
+		bombLine.getImage().setLayoutX((double) x * CELL_SIZE + (CELL_SIZE - bombLine.getWidth()) / 2);
+		bombLine.getImage().setLayoutY((double) y * CELL_SIZE + (CELL_SIZE - bombLine.getHeight()) / 2);
 		gameMap.getChildren().add(bombLine.getImage());
 	}
 	
 	private void createBombCenter(int x, int y, BombCenter bombCenter) {
-		bombCenter.getImage().setLayoutX((double) x * 710/17 + (710.0/17 - bombCenter.getWidth()) / 2);
-		bombCenter.getImage().setLayoutY((double) y * 710/17 + (710.0/17 - bombCenter.getHeight()) / 2);
+		bombCenter.getImage().setLayoutX((double) x * CELL_SIZE + (CELL_SIZE - bombCenter.getWidth()) / 2);
+		bombCenter.getImage().setLayoutY((double) y * CELL_SIZE + (CELL_SIZE - bombCenter.getHeight()) / 2);
 		gameMap.getChildren().add(bombCenter.getImage());
 	}
 	
-	private void createCharacter(Group charView, Character character) {
-		charView.setLayoutX(character.getPosX());
-		charView.setLayoutY(character.getPosY());
-		gameMap.getChildren().add(charView);
+	private void createCharacter(Character character) {
+		gameMap.getChildren().add(character);
 	}
 	
 	private void createBomb(int x, int y) {
 		ImageView bombView = new ImageView(Bomb.IMAGE);
-		bombView.setLayoutX((double) x*710/17 - (Bomb.WIDTH - 710/17)/2);
-		bombView.setLayoutY((double) y*710/17 - Bomb.HEIGHT + Bomb.WIDTH);
+		bombView.setLayoutX((double) x*CELL_SIZE - (Bomb.WIDTH - CELL_SIZE)/2);
+		bombView.setLayoutY((double) y*CELL_SIZE - Bomb.HEIGHT + Bomb.WIDTH);
 		gameMap.getChildren().add(bombView);
-	}
-	
-	private int getCharacterRow(double posY) {
-		double result = (posY + Character.HEIGHT - 0.8*Character.WIDTH) * 17 / 710 ;
-		return (int) result;
-	}
-	private int getCharacterCol(double posX) {
-		double result = (posX + (Character.WIDTH - 710/17)/2 ) * 17 / 710 ;
-		return (int) result;
 	}
 }

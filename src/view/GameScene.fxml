@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?package view?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
-<?import java.util.ArrayList?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="gameScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="725.0" prefWidth="982.0" stylesheets="@layout.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane fx:id="gameScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="725.0" prefWidth="982.0" stylesheets="@layout.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
    <left>
       <VBox alignment="CENTER" prefHeight="725.0" prefWidth="258.0" styleClass="mission" stylesheets="@layout.css" BorderPane.alignment="CENTER">
          <children>
@@ -37,81 +39,81 @@
                         <Image url="@../../src/images/black_mission.png" />
                      </image>
                   </ImageView>
-                  <Label fx:id="labelLive1" layoutX="160.0" layoutY="13.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="live-label-1" layoutX="160.0" layoutY="13.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font></Label>
-                  <Label fx:id="labelQtyBomb1" layoutX="160.0" layoutY="37.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="qtybomb-label-1" layoutX="160.0" layoutY="37.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelPowBomb1" layoutX="160.0" layoutY="61.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="powbomb-label-1" layoutX="160.0" layoutY="61.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelSpeed1" layoutX="160.0" layoutY="84.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="speed-label-1" layoutX="160.0" layoutY="84.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelLive2" layoutX="160.0" layoutY="146.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="live-label-2" layoutX="160.0" layoutY="146.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelQtyBomb2" layoutX="160.0" layoutY="170.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="qtybomb-label-2" layoutX="160.0" layoutY="170.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelPowBomb2" layoutX="160.0" layoutY="193.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="powbomb-label-2" layoutX="160.0" layoutY="193.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelSpeed2" layoutX="160.0" layoutY="217.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="speed-label-2" layoutX="160.0" layoutY="217.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelLive3" layoutX="160.0" layoutY="280.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="live-label-3" layoutX="160.0" layoutY="280.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelQtyBomb3" layoutX="160.0" layoutY="304.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="qtybomb-label-3" layoutX="160.0" layoutY="304.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelPowBomb3" layoutX="160.0" layoutY="327.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="powbomb-label-3" layoutX="160.0" layoutY="327.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelSpeed3" layoutX="160.0" layoutY="351.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="speed-label-3" layoutX="160.0" layoutY="351.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelLive4" layoutX="160.0" layoutY="413.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="live-label-4" layoutX="160.0" layoutY="413.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelQtyBomb4" layoutX="160.0" layoutY="436.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="qtybomb-label-4" layoutX="160.0" layoutY="436.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelPowBomb4" layoutX="160.0" layoutY="460.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="powbomb-label-4" layoutX="160.0" layoutY="460.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
                   </Label>
-                  <Label fx:id="labelSpeed4" layoutX="160.0" layoutY="484.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
+                  <Label id="speed-label-4" layoutX="160.0" layoutY="484.0" text="1" textAlignment="RIGHT" AnchorPane.rightAnchor="32.0">
                      <font>
                         <Font name="Arial Bold" size="15.0" />
                      </font>
@@ -124,7 +126,7 @@
                      <font>
                         <Font name="Arial Black" size="15.0" />
                      </font></Label>
-                  <Label alignment="CENTER" style="-fx-background-color: #d4ebff; -fx-background-radius: 5px;" text="150">
+                  <Label id="time-label" alignment="CENTER" style="-fx-background-color: #d4ebff; -fx-background-radius: 5px;" text="150">
                      <padding>
                         <Insets bottom="2.0" left="10.0" right="10.0" top="2.0" />
                      </padding>
@@ -139,7 +141,7 @@
                   <Insets bottom="20.0" top="20.0" />
                </VBox.margin>
             </HBox>
-            <AnchorPane prefHeight="39.0" prefWidth="162.0">
+            <AnchorPane id="pause-btn" prefHeight="39.0" prefWidth="162.0">
                <children>
                   <ImageView layoutX="15.0" AnchorPane.leftAnchor="21.0" AnchorPane.rightAnchor="21.0">
                      <image>
@@ -149,7 +151,7 @@
                         <Cursor fx:constant="HAND" />
                      </cursor>
                   </ImageView>
-                  <Label layoutX="61.0" layoutY="8.0" text="Pause" textFill="#3c3c3c" AnchorPane.leftAnchor="67.0" AnchorPane.rightAnchor="65.0">
+                  <Label id="pause-label" layoutX="61.0" layoutY="8.0" text="Pause" textFill="WHITE" AnchorPane.leftAnchor="67.0" AnchorPane.rightAnchor="65.0">
                      <font>
                         <Font name="Arial Black" size="15.0" />
                      </font>

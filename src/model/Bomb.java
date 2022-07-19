@@ -8,9 +8,10 @@ public class Bomb {
 	public static final double HEIGHT = IMAGE.getHeight();
 	public static final long TIMEBOOM = 2_000;
 	private long timeSet;
-	private int length, owner, inRow, inCol;
+	private int length, inRow, inCol;
+	private Character owner;
 	
-	public Bomb(int length, int owner, int inRow, int inCol) {
+	public Bomb(int length, Character owner, int inRow, int inCol) {
 		this.length = length;
 		this.timeSet = System.currentTimeMillis();
 		this.owner = owner;
@@ -21,7 +22,7 @@ public class Bomb {
 	public int getLength() {
 		return this.length;
 	}
-	public int getOwner() {
+	public Character getOwner() {
 		return this.owner;
 	}
 	public int getInRow() {
