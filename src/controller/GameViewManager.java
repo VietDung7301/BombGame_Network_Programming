@@ -240,7 +240,6 @@ public class GameViewManager {
 		this.menuStage = menuStage;
 		this.menuStage.hide();
 		
-		createGameElement();
 		createGameLoop();
 		gameStage.show();
 	}
@@ -252,8 +251,8 @@ public class GameViewManager {
 			@Override
 			public void handle(long now) {
 				if (now - lastUpdate >= 30_000_000) {
-					timeLeft -= 0.01;
-					timeLabel.setText("" + (int) timeLeft);
+					lastUpdate = now;
+					updateTimeLeft();
 					moveCharacter();
 					setBomb();
 					bombBoom();
@@ -265,6 +264,11 @@ public class GameViewManager {
 			}
 		};
 		gameTimer.start();
+	}
+	
+	private void updateTimeLeft() {
+		this.timeLeft-= 0.03;
+		timeLabel.setText("" + ((int) timeLeft));
 	}
 	
 	private void createGameElement() {
