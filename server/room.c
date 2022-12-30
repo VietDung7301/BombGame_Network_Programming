@@ -1,6 +1,8 @@
+#include <stdlib.h>
+#include <string.h>
 #include "room.h"
 
-extern int roomId = 0;
+int roomId = 0;
 
 Room* createRoom(char* name, int owner) {
     roomId++;

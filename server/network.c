@@ -6,15 +6,15 @@
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
-    
-#define PORT     8080 
+#include "network.h"
+#include "controller.h"
+       
 #define MAXLINE 1024 
     
-// Driver code 
-int main() { 
+/* Khởi tạo socket để nhận dữ liệu */
+int startServer(int port) {
     int sockfd; 
     char buffer[MAXLINE]; 
-    char *hello = "Hello from server"; 
     struct sockaddr_in servaddr, cliaddr; 
         
     // Creating socket file descriptor 
@@ -29,29 +29,28 @@ int main() {
     // Filling server information 
     servaddr.sin_family    = AF_INET; // IPv4 
     servaddr.sin_addr.s_addr = INADDR_ANY; 
-    servaddr.sin_port = htons(PORT); 
+    servaddr.sin_port = htons(port); 
         
     // Bind the socket with the server address 
-    if ( bind(sockfd, (const struct sockaddr *)&servaddr,  
-            sizeof(servaddr)) < 0 ) 
+    if ( bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0 ) 
     { 
         perror("bind failed"); 
         exit(EXIT_FAILURE); 
     } 
+
+    printf("Server started at %d\n", port);
+    for (;;) {
+        int len, n; 
+    
+        len = sizeof(cliaddr);  //len is value/result 
         
-    int len, n; 
-    
-    len = sizeof(cliaddr);  //len is value/result 
-    
-    n = recvfrom(sockfd, (char *)buffer, MAXLINE,  
-                MSG_WAITALL, ( struct sockaddr *) &cliaddr, 
-                &len); 
-    buffer[n] = '\0'; 
-    printf("Client : %s\n", buffer); 
-    sendto(sockfd, (const char *)hello, strlen(hello),  
-        MSG_CONFIRM, (const struct sockaddr *) &cliaddr, 
-            len); 
-    printf("Hello message sent.\n");  
+        n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliaddr, &len); 
+        buffer[n] = '\0';
+        const char* response = handlerRequest(buffer, cliaddr);
+        sendto(sockfd, response, strlen(response), MSG_CONFIRM, (const struct sockaddr *) &cliaddr, len); 
+        printf("Hello message sent.\n"); 
+    }
+     
         
     return 0; 
 }
