@@ -1,5 +1,4 @@
 # BombGame
----
 ## Cách chạy project
 #### 1. Khởi động server
 ```shell
