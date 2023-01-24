@@ -1,5 +1,10 @@
 {
     "files.associations": {
-        "socket.h": "c"
+        "socket.h": "c",
+        "controller.h": "c",
+        "user.h": "c",
+        "room.h": "c",
+        "util.h": "c",
+        "converter.h": "c"
     }
 }

@@ -13,6 +13,7 @@
 #include "room.h"
 
 #define INVALID_MSG "#serr#&Invalid request!"
+#define CHECK_CORE_DUMPED printf("check cordumped\n");
 
 int currentUser = 0;
 User *userList[100];
@@ -32,6 +33,25 @@ char* addUser(struct sockaddr_in addr, char* request) {
     currentUser++;
     char* response = toUserInfor(user);
     return response;
+}
+
+/**
+ * Tìm kiếm user poin thông qua addr
+ * @addr: địa chỉ client
+ * return: poin to user in user list
+*/
+User* requestUser(struct sockaddr_in addr) {
+    for ( int i = 1; i <= currentUser; i++){
+        
+        if(
+            (addr.sin_addr.s_addr == userList[i]->addr.sin_addr.s_addr)
+        &&  (addr.sin_port == userList[i]->addr.sin_port)
+        ){
+            return userList[i];
+        }
+        
+    }
+    return NULL;
 }
 
 void getUserInfor() {
@@ -93,6 +113,84 @@ char* addRoom(char* request, struct sockaddr_in addr) {
 }
 
 /**
+ * xử lý request đổi tên từ client
+ * request struct: #c002#&new_name$$
+ * @request: message từ client
+ * @addr: địa chỉ client
+ * return: response từ server
+*/
+char* changeClientName(char *request, struct sockaddr_in addr){
+    
+    User *user = requestUser(addr);
+    printf("%s %d\n",user->name , user->id);
+    if(user == NULL){
+        return "";
+    }
+    // Handle request get new name
+    char new_name[strlen(request)];
+    int new_name_counter = 0;
+    for ( int i = 7; i < strlen(request) - 2; i++){
+        new_name[new_name_counter++] = request[i];
+    }
+    new_name[new_name_counter] = '\0';
+    bool is_success = true;
+    // check name is already exit
+    for ( int i = 1; i <= currentUser; i++){
+        if( strcmp(new_name, userList[i]->name) == 0 && user->id != userList[i]->id ){
+            is_success = false;
+            return responseS002(new_name, is_success);
+        }
+    }
+    // name is not already exit
+    strcpy(user->name, new_name);
+
+    return responseS002(new_name, is_success);
+}
+
+/**
+ * xử lý yêu cầu tham gia phòng client
+ * request struct: #c005#&room_id$$
+ * @request: message từ client
+ * @addr: địa chỉ client
+ * return: response từ server
+*/
+char* joinRoom(char *request, struct sockaddr_in addr){
+
+    User *user = requestUser(addr);
+
+    if(user == NULL){
+        return "";
+    }
+
+    // Handle request get room id
+    char room_id[strlen(request)];
+    int room_id_counter = 0;
+    for ( int i = 7; i < strlen(request) - 2; i++){
+        room_id[room_id_counter++] = request[i];
+    }
+    room_id[room_id_counter] = '\0';
+
+    // get room by id
+    Room *room = roomList[strToInt(room_id)];
+
+    if(room == NULL){
+        return "";
+    }
+
+    bool is_success;
+    // add client in to room
+    if(room->quantity < 4){
+        room->playerList[room->quantity++] = user->id;
+        is_success = true;
+    }else{
+        // room is full
+        is_success = false;
+    }
+
+    return responseS005(is_success);
+}
+
+/**
  * Xử lý request từ user
  * @request: message từ client
  * @addr: địa chỉ client
@@ -105,7 +203,7 @@ char* handlerRequest(char* request, struct sockaddr_in addr) {
         printf("Err from client: Invalid request!\n");
         return INVALID_MSG;
     }
-
+    
     char* response;
     char code[4];   // Tách lấy 3 ký tự đầu của request
     int icode;      // Đổi các ký tự đó thành số để dùng switch-case
@@ -116,9 +214,9 @@ char* handlerRequest(char* request, struct sockaddr_in addr) {
         case 000: return addUser(addr, request);break;
         case 001: getUserInfor();
             break;
-        case 004: 
-            return addRoom(request, addr);
-            break;
+        case 002: return changeClientName(request, addr);
+        case 004: return addRoom(request, addr);
+        case 005: return joinRoom(request, addr);
         default:
             printf("Error from client: Invalid request!");
             return INVALID_MSG;
@@ -127,3 +225,6 @@ char* handlerRequest(char* request, struct sockaddr_in addr) {
     response = "#serr#&Unknow Error";
     return response;
 }
+
+
+
