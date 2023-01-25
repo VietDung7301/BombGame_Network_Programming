@@ -41,7 +41,7 @@ char* addUser(struct sockaddr_in addr, char* request) {
  * return: poin to user in user list
 */
 User* requestUser(struct sockaddr_in addr) {
-    for ( int i = 1; i <= currentUser; i++){
+    for ( int i = 0; i < currentUser; i++){
         
         if(
             (addr.sin_addr.s_addr == userList[i]->addr.sin_addr.s_addr)
@@ -78,7 +78,6 @@ int getUserID(struct sockaddr_in addr){
 char* getName(char* request){
     char* name = (char*) malloc(50 * sizeof(char));
     int count = 0;
-    printf("%s\n", request);
     for(int i = 0; i < strlen(request); i++){
         if(request[i] == '&'){
             while(1){
@@ -122,20 +121,20 @@ char* addRoom(char* request, struct sockaddr_in addr) {
 char* changeClientName(char *request, struct sockaddr_in addr){
     
     User *user = requestUser(addr);
-    printf("%s %d\n",user->name , user->id);
+    //printf("%s %d\n",user->name , user->id);
     if(user == NULL){
         return "";
     }
     // Handle request get new name
     char new_name[strlen(request)];
     int new_name_counter = 0;
-    for ( int i = 7; i < strlen(request) - 2; i++){
+    for ( int i = 7; i < strlen(request) - 3; i++){
         new_name[new_name_counter++] = request[i];
     }
     new_name[new_name_counter] = '\0';
     bool is_success = true;
     // check name is already exit
-    for ( int i = 1; i <= currentUser; i++){
+    for ( int i = 0; i < currentUser; i++){
         if( strcmp(new_name, userList[i]->name) == 0 && user->id != userList[i]->id ){
             is_success = false;
             return responseS002(new_name, is_success);
@@ -159,22 +158,22 @@ char* joinRoom(char *request, struct sockaddr_in addr){
     User *user = requestUser(addr);
 
     if(user == NULL){
-        return "";
+        return "1";
     }
 
     // Handle request get room id
     char room_id[strlen(request)];
     int room_id_counter = 0;
-    for ( int i = 7; i < strlen(request) - 2; i++){
+    for ( int i = 7; i < strlen(request) - 3; i++){
         room_id[room_id_counter++] = request[i];
     }
     room_id[room_id_counter] = '\0';
-
+    int id = strToInt(room_id);
     // get room by id
-    Room *room = roomList[strToInt(room_id)];
+    Room *room = roomList[id];
 
     if(room == NULL){
-        return "";
+        return "2";
     }
 
     bool is_success;

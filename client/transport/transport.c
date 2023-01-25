@@ -67,16 +67,13 @@ int main(int argc, char** argv) {
                             &len); 
                 buffer[n] = '\0'; 
                 printf("Server : %s\n", buffer); 
-                state = 2;
+                state = 1;
                 break;
-            case 2:
-                strcpy(request, "#c004#&");
-                buffer[0] = '\0';
-                printf("Nhap ten phong: ");
-                fgets(buffer, MAXLINE, stdin);
-                buffer[strlen(buffer) - 1] = '\0';
-                strcat(request, buffer);
-                strcat(request, "$$");
+            case 1:
+                request[0] = '\0';
+                printf("Request : ");
+                fgets(request, MAXLINE, stdin);
+                //request[strlen(request) - 1] = '\0';
                 sendto(sockfd, (const char *)request, strlen(request), MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
                 
                 buffer[0] = '\0';
@@ -85,7 +82,7 @@ int main(int argc, char** argv) {
                             MSG_WAITALL, (struct sockaddr *) &servaddr, 
                             &len); 
                 buffer[n] = '\0'; 
-                printf("Server : %s\n", buffer);
+                printf("Response : %s\n", buffer);
                 break;
         }
         

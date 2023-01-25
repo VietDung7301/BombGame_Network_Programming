@@ -40,27 +40,15 @@ int startServer(int port) {
     } 
 
     printf("Server started at %d\n", port);
-    const char* response;
+    //const char* response;
     int len, n;
     for (;;) {
-<<<<<<< HEAD
         len = sizeof(cliaddr);  //len is value/result
         n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliaddr, &len); 
         buffer[n] = '\0';
         response = handlerRequest(buffer, cliaddr);
         sendto(sockfd, response, strlen(response), MSG_CONFIRM, (const struct sockaddr *) &cliaddr, len);
-=======
-        memset(buffer, 0, MAXLINE);
-        int len, n; 
-    
-        len = sizeof(cliaddr);  //len is value/result 
-        
-        n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliaddr, &len); 
-        buffer[n] = '\0';
-        response = handlerRequest(buffer, cliaddr);
-        sendto(sockfd, response, strlen(response), MSG_CONFIRM, (const struct sockaddr *) &cliaddr, len); 
->>>>>>> 00a5c7cddef6700fe017f63dbb82e192d746f718
-        printf("Hello message sent.\n"); 
+        //printf("Hello message sent.\n"); 
     }
      
         
