@@ -54,8 +54,34 @@ User* requestUser(struct sockaddr_in addr) {
     return NULL;
 }
 
-void getUserInfor() {
-    
+char* getUserInfor(struct sockaddr_in addr) {
+    User* user = requestUser(addr);
+    char* response = toUserInfor(user);
+    return response;
+}
+
+char* getRoomList(){
+    char* response = (char*) malloc(2048 * sizeof(char)); 
+    strcat(response, "#s003#&");
+    strcat(response, intToStr(currentRoom));
+    for(int i = 0; i < currentRoom; i++){
+        strcat(response, "&");
+        strcat(response, roomList[i]->name);
+        strcat(response, "&");
+        strcat(response, intToStr(roomList[i]->id));
+        strcat(response, "&");
+        strcat(response, intToStr(roomList[i]->quantity));
+        strcat(response, "&");
+        for(int j = 0; j < currentUser; j++){
+            if(userList[j]->id == roomList[i]->id){
+                strcat(response, userList[j]->name);
+                break;
+            }
+        }
+
+    }
+    strcat(response, "$$");
+    return response;
 }
 
 int checkValidateName(char* name){
@@ -211,9 +237,10 @@ char* handlerRequest(char* request, struct sockaddr_in addr) {
     icode = strToInt(code);
     switch (icode) {
         case 000: return addUser(addr, request);break;
-        case 001: getUserInfor();
+        case 001: return getUserInfor(addr);
             break;
         case 002: return changeClientName(request, addr);
+        case 003: return getRoomList();
         case 004: return addRoom(request, addr);
         case 005: return joinRoom(request, addr);
         default:
