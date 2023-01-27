@@ -61,7 +61,6 @@ User* requestUser(struct sockaddr_in addr) {
     return NULL;
 }
 
-<<<<<<< HEAD
 char* getUserInfor(struct sockaddr_in addr) {
     User* user = requestUser(addr);
     char* response = toUserInfor(user);
@@ -90,7 +89,7 @@ char* getRoomList(){
     }
     strcat(response, "$$");
     return response;
-=======
+}
 /**
  * Chuyển đổi mảng 2 chiều map sang chuỗi
  * @map: mảng 2 chiều map
@@ -137,11 +136,6 @@ Room* getRoomById(int id) {
     return NULL;
 }
 
-
-void getUserInfor() {
-    
->>>>>>> 0f7ca069a2dd7d6dad15ec8475d4e58dc7797821
-}
 
 int checkValidateName(char* name){
     for(int i = 0; i < currentRoom; i++){
