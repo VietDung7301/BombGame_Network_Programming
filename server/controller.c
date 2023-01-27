@@ -11,6 +11,9 @@
 #include "converter.h"
 #include "user.h"
 #include "room.h"
+#include "bomb.h"
+#include "player.h"
+#include "playRoom.h"
 
 #define INVALID_MSG "#serr#&Invalid request!"
 #define CHECK_CORE_DUMPED printf("check cordumped\n");
@@ -20,6 +23,10 @@ User *userList[100];
 
 int currentRoom = 0;
 Room *roomList[100];
+
+int currentPlayRoom = 0;
+PlayRoom *playRoomList[100];
+
 
 /**
  * Tạo người dùng mới và thêm vào danh sách người dùng
@@ -53,6 +60,53 @@ User* requestUser(struct sockaddr_in addr) {
     }
     return NULL;
 }
+
+/**
+ * Chuyển đổi mảng 2 chiều map sang chuỗi
+ * @map: mảng 2 chiều map
+ * return: chuỗi map
+*/
+char *convertMapToString(int map[17][17]) {
+    
+    char *result = (char*)malloc(290);
+    for ( int i = 0; i < 17; i++){
+        for (int j = 0; j < 17; j++){
+            strcat(result, intToStr(map[i][j]));
+        }
+    }
+    return result;
+}
+
+/**
+ * Tìm kiếm user thông qua id
+ * @id: mã user
+ * return: poin to user in user list
+*/
+User* getUserById(int id) {
+    for ( int i = 0; i < currentUser; i++){
+        
+        if(userList[i]->id == id){
+            return userList[i];
+        }     
+    }
+    return NULL;
+}
+
+/**
+ * Tìm kiếm room thông qua id
+ * @id: mã room
+ * return: poin to user in user list
+*/
+Room* getRoomById(int id) {
+    for ( int i = 0; i < currentRoom; i++){
+        
+        if(roomList[i]->id == id){
+            return roomList[i];
+        }     
+    }
+    return NULL;
+}
+
 
 void getUserInfor() {
     
@@ -100,6 +154,8 @@ char* addRoom(char* request, struct sockaddr_in addr) {
     if(checkValidateName(name)){
         int owner = getUserID(addr);
         Room* room = createRoom(name, owner);
+        User *user = getUserById(owner);
+        user->currentRoom = room->id;
         roomList[currentRoom] = room;
         currentRoom++;
         strcpy(response, "#s004#");
@@ -164,13 +220,13 @@ char* joinRoom(char *request, struct sockaddr_in addr){
     // Handle request get room id
     char room_id[strlen(request)];
     int room_id_counter = 0;
-    for ( int i = 7; i < strlen(request) - 3; i++){
+    for ( int i = 7; i < strlen(request) - 2; i++){
         room_id[room_id_counter++] = request[i];
     }
     room_id[room_id_counter] = '\0';
     int id = strToInt(room_id);
     // get room by id
-    Room *room = roomList[id];
+    Room *room = getRoomById(id);
 
     if(room == NULL){
         return "2";
@@ -180,6 +236,7 @@ char* joinRoom(char *request, struct sockaddr_in addr){
     // add client in to room
     if(room->quantity < 4){
         room->playerList[room->quantity++] = user->id;
+        user->currentRoom = room->id;
         is_success = true;
     }else{
         // room is full
@@ -187,6 +244,80 @@ char* joinRoom(char *request, struct sockaddr_in addr){
     }
 
     return responseS005(is_success);
+}
+
+/**
+ * xử lý yêu cầu bắt đầu trò chơi
+ * request struct: #c006#
+ * @request: message từ client
+ * @addr: địa chỉ client
+ * return: response từ server
+*/
+char* startGame(char *request, struct sockaddr_in addr){
+
+    User *user = requestUser(addr);
+    if(user == NULL){
+        return "1";
+    }
+
+    // get room by id
+    Room *room = getRoomById(user->currentRoom);
+    if(room == NULL){
+        return "2";
+    }
+
+    PlayRoom *play_room = createPlayRoom();
+    playRoomList[currentPlayRoom++] = play_room;
+
+    for (int i = 0; i < room->quantity; i++){
+        play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id);
+    }
+
+    char *convert_map_to_string = convertMapToString(play_room->map);
+    printf("%s\n", convert_map_to_string);
+
+    return responseS008(play_room, convert_map_to_string);
+}
+
+/**
+ * Lấy thông tin chi tiết 1 phòng
+ * request struct: #c007#&room_id$$
+ * @request: message từ client
+ * @addr: địa chỉ client
+ * return: response từ server
+*/
+char* getRoomInfo(char *request, struct sockaddr_in addr){
+
+    User *user = requestUser(addr);
+
+    if(user == NULL){
+        return "1";
+    }
+
+    // Handle request get room id
+    char room_id[strlen(request)];
+    int room_id_counter = 0;
+    for ( int i = 7; i < strlen(request) - 2; i++){
+        room_id[room_id_counter++] = request[i];
+    }
+    room_id[room_id_counter] = '\0';
+    int id = strToInt(room_id);
+    
+    // get room by id
+    Room *room = getRoomById(id);
+    if(room == NULL){
+        return "2";
+    }
+
+    User* owner = getUserById(room->id);
+
+    User* player_list[room->quantity];
+
+    for(int i = 0; i < room->quantity; i++){
+        player_list[i] = getUserById(room->playerList[i]);
+    }
+
+    return responseS007(room, owner, player_list);
 }
 
 /**
@@ -216,6 +347,8 @@ char* handlerRequest(char* request, struct sockaddr_in addr) {
         case 002: return changeClientName(request, addr);
         case 004: return addRoom(request, addr);
         case 005: return joinRoom(request, addr);
+        case 006: return startGame(request, addr);
+        case 007: return getRoomInfo(request, addr);
         default:
             printf("Error from client: Invalid request!");
             return INVALID_MSG;

@@ -12,6 +12,7 @@ typedef struct {
     int id;             // id được đánh số tăng dần
     int status;         // 0: offline, 1: online, 2: ingame
     int currentRoom;    // Phòng hiện tại. -1 nếu chưa tham gia phòng nào
+    int token;          // Xác định người dùng
 } User;
 
 /**

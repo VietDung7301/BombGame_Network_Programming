@@ -24,3 +24,9 @@ char* intToStr(int a) {
     sprintf(result, "%d", a);
     return result;
 }
+
+char* doubleToStr(double a) {
+    char* result = (char*) malloc(20);
+    sprintf(result, "%f", a);
+    return result;
+}
