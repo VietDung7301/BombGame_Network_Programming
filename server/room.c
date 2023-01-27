@@ -14,7 +14,6 @@ Room* createRoom(char* name, int owner) {
     room->quantity = 1;
     room->owner = owner;
     room->playerList[0] = owner;
-    room->time = -1;
     
     return room;
 }
