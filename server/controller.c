@@ -270,12 +270,10 @@ char* startGame(char *request, struct sockaddr_in addr){
     playRoomList[currentPlayRoom++] = play_room;
 
     for (int i = 0; i < room->quantity; i++){
-        play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id);
+        play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id, 2, 2, 2);
     }
 
     char *convert_map_to_string = convertMapToString(play_room->map);
-    printf("%s\n", convert_map_to_string);
-
     return responseS008(play_room, convert_map_to_string);
 }
 
