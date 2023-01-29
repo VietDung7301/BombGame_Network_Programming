@@ -158,6 +158,7 @@ char* getName(char* request){
     char* name = (char*) malloc(50 * sizeof(char));
     int count = 0;
     for(int i = 0; i < strlen(request); i++){
+        printf("%c\n",request[i]);
         if(request[i] == '&'){
             while(1){
                 i++;
@@ -176,6 +177,7 @@ char* getName(char* request){
 char* addRoom(char* request, struct sockaddr_in addr) {
     char *response = (char*) malloc(50 * sizeof(char));
     char *name = getName(request);
+    //printf("%s\n",name);
     if(checkValidateName(name)){
         int owner = getUserID(addr);
         Room* room = createRoom(name, owner);
