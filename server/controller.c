@@ -346,6 +346,47 @@ char* getRoomInfo(char *request, struct sockaddr_in addr){
 }
 
 /**
+ * Chơi game
+ * request struct: #c008#&1&up$$
+ * @request: message từ client
+ * @addr: địa chỉ client
+ * return: response từ server
+*/
+char* playGame(char *request, struct sockaddr_in addr){
+
+    User *user = requestUser(addr);
+
+    if(user == NULL){
+        return "1";
+    }
+
+    // Handle request get room id
+    char room_id[strlen(request)];
+    int room_id_counter = 0;
+    for ( int i = 7; i < strlen(request) - 2; i++){
+        room_id[room_id_counter++] = request[i];
+    }
+    room_id[room_id_counter] = '\0';
+    int id = strToInt(room_id);
+    // get room by id
+    Room *room = getRoomById(id);
+    if(room == NULL){
+        return "2";
+    }
+
+    User* owner = getUserById(room->owner);
+
+    User* player_list[room->quantity];
+
+    for(int i = 0; i < room->quantity; i++){
+        player_list[i] = getUserById(room->playerList[i]);
+    }
+
+    return responseS007(room, owner, player_list);
+}
+
+
+/**
  * Xử lý request từ user
  * @request: message từ client
  * @addr: địa chỉ client
@@ -366,15 +407,16 @@ char* handlerRequest(char* request, struct sockaddr_in addr) {
     code[3] = '\n';
     icode = strToInt(code);
     switch (icode) {
-        case 000: return addUser(addr, request);break;
-        case 001: return getUserInfor(addr);
+        case 0: return addUser(addr, request);break;
+        case 1: return getUserInfor(addr);
             break;
-        case 002: return changeClientName(request, addr);
-        case 003: return getRoomList();
-        case 004: return addRoom(request, addr);
-        case 005: return joinRoom(request, addr);
-        case 006: return startGame(request, addr);
-        case 007: return getRoomInfo(request, addr);
+        case 2: return changeClientName(request, addr);
+        case 3: return getRoomList();
+        case 4: return addRoom(request, addr);
+        case 5: return joinRoom(request, addr);
+        case 6: return startGame(request, addr);
+        case 7: return getRoomInfo(request, addr);
+        case 8: return playGame(request, addr);
         default:
             printf("Error from client: Invalid request!");
             return INVALID_MSG;
