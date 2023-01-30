@@ -327,7 +327,6 @@ char* getRoomInfo(char *request, struct sockaddr_in addr){
     }
     room_id[room_id_counter] = '\0';
     int id = strToInt(room_id);
-    printf("%d\n", id);
     // get room by id
     Room *room = getRoomById(id);
     if(room == NULL){
