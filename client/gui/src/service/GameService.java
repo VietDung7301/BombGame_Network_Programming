@@ -2,6 +2,9 @@ package service;
 
 import model.common.Direction;
 import network.ServerConnector;
+
+import java.util.regex.Pattern;
+
 import model.bomb.Boom;
 import model.character.Character;
 
@@ -35,6 +38,19 @@ public class GameService {
 		this.converter = new Converter();
 	}
 	
+	public void testService() {
+		System.out.println("Khoi tao ngoi choi: ");
+		String req = converter.paramToRequest(NEW_USER);
+		String res = connector.sendData(req);
+		String userName = res.split("&")[1];
+		System.out.println("User name: " + userName);
+		
+		System.out.println("Tao phong: ");
+		req = converter.paramToRequest(ADD_ROOM, "Phong 1");
+		res = connector.sendData(req);
+		System.out.println("response: " + res);
+	}
+	
 	public GameResponse startGame(int numPlayer) {
 		String req = converter.paramToRequest(START_GAME);
 		String res = connector.sendData(req);
@@ -54,7 +70,9 @@ public class GameService {
 		
 		setBoomList(resList[3], gameResponse);
 		
-		gameResponse.setTimeLeft(Double.parseDouble(resList[4]));
+		setTimeLeft(resList[4], gameResponse);
+		
+		System.out.println("player List: " + gameResponse.getPlayerList()[0].getPosX());
 		
 		return gameResponse;
 	}
@@ -73,12 +91,9 @@ public class GameService {
 		}
 		
 		setMap(resList[1], gameResponse);
-		
 		setPlayerList(resList[2], gameResponse, numPlayer);
-		
 		setBoomList(resList[3], gameResponse);
-		
-		gameResponse.setTimeLeft(Double.parseDouble(resList[4]));
+		setTimeLeft(resList[4], gameResponse);
 		
 		return gameResponse;
 	}
@@ -88,7 +103,8 @@ public class GameService {
 	}
 	
 	private void setMap(String str, GameResponse gameResponse) {
-		String[] cellList = str.split("|");
+		String[] cellList = str.split(Pattern.quote("|"));
+		System.out.println("str in map: " + cellList[0] + cellList[1]);
 		
 		int index = 0;
 		for (int i=0; i<17; i++)
@@ -99,7 +115,7 @@ public class GameService {
 	}
 	
 	private void setPlayerList(String str, GameResponse gameResponse, int numPlayer) {
-		String[] cellList = str.split("|");
+		String[] cellList = str.split(Pattern.quote("|"));
 		
 		for (int i=0; i<numPlayer; i+= 8) {
 			Character character = new Character (
@@ -117,9 +133,10 @@ public class GameService {
 	}
 	
 	private void setBoomList(String str, GameResponse gameResponse) {
-		String[] cellList = str.split("|");
+		String[] cellList = str.split(Pattern.quote("|"));
 		
-		for (int i=0; i<cellList.length; i+= 3) {
+		int numBoom = cellList.length - cellList.length % 3;
+		for (int i=0; i<numBoom; i+= 3) {
 			Boom boom = new Boom(
 					Integer.parseInt(cellList[i]),
 					Integer.parseInt(cellList[i + 1]),
@@ -127,5 +144,10 @@ public class GameService {
 				);
 			gameResponse.addBoom(boom);
 		}
+	}
+	
+	private void setTimeLeft(String str, GameResponse gameResponse) {
+		String strTime = str.split(Pattern.quote("$$"))[0];
+		gameResponse.setTimeLeft(Double.parseDouble(strTime));
 	}
 }

@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 
 
 public class ServerConnector {
-	private static final String SERVER_ADDRESS = "172.30.94.83";
+	private static final String SERVER_ADDRESS = "172.18.164.18";
 	private static final int SERVER_PORT = 8000;
 	
 	private InetAddress ip;
@@ -30,7 +30,7 @@ public class ServerConnector {
 	
 	public String sendData(String req) {
 		byte[] buff = req.getBytes();
-		byte[] recv = new byte[400];
+		byte[] recv = new byte[800];
 		DatagramPacket dataSend = new DatagramPacket(buff, buff.length, ip, port);
 		DatagramPacket dataRecv = new DatagramPacket(recv, recv.length);
 		try {

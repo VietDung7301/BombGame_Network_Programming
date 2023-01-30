@@ -115,7 +115,6 @@ public class GameViewManager {
 		this.numPlayer = numPlayer;
 		this.controlPlayerPosition = controlPlayerPos;
 		this.gameService = new GameService();
-		initializeGame();
 		initializeStage();
 		initializeLabel();
 		initializeButton();
@@ -123,6 +122,7 @@ public class GameViewManager {
 	}
 	
 	private void initializeGame() {
+		gameService.testService();
 		GameResponse gameStatus = 
 				gameService.startGame(numPlayer);
 		
@@ -248,6 +248,7 @@ public class GameViewManager {
 		this.menuStage = menuStage;
 		this.menuStage.hide();
 		
+		initializeGame();
 		createGameLoop();
 		gameStage.show();
 	}
