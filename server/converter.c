@@ -29,6 +29,7 @@ char* toUserInfor(User* user) {
 char *responseS002 (char *new_name, bool is_success){
 
     char *result = (char*)malloc(100);
+    memset(result, 0, 100);
     if(is_success){
         strcat(result, "#s002#&");
         strcat(result, new_name);
@@ -48,6 +49,7 @@ char *responseS002 (char *new_name, bool is_success){
 char *responseS005 (bool is_success){
     
     char *result = (char*)malloc(100);
+    memset(result, 0, 100);
     if(is_success){
         strcat(result, "#s005#&");
         strcat(result, "success");
@@ -67,6 +69,7 @@ char *responseS005 (bool is_success){
 char *responseS007 (Room* room, User* owner, User* player_list[]){
     
     char *result = (char*)malloc(500);
+    memset(result, 0, 500);
     // response id
     strcat(result, "#s007#&");
     // room name
@@ -80,11 +83,11 @@ char *responseS007 (Room* room, User* owner, User* player_list[]){
     strcat(result, "&");
     // so luong nguoi choi
     strcat(result, intToStr(room->quantity));
-    strcat(result, "&");
+
     // player name n
     for(int i = 0; i < room->quantity; i++){
-        strcat(result, player_list[i]->name);
         strcat(result, "&");
+        strcat(result, player_list[i]->name);
     }
     strcat(result, "$$");
     return result;
@@ -100,47 +103,71 @@ char *responseS007 (Room* room, User* owner, User* player_list[]){
 char *responseS008 (PlayRoom *play_room, char* string_map){
     
     char *result = (char*)malloc(1000);
+    memset(result, 0, 1000);
     // response id
     strcat(result, "#s008#&");
     // map
     strcat(result, string_map);
     strcat(result, "&");
+
     // player n
     for(int i = 0; play_room->playerList[i] != NULL; i++){
         Player* player = play_room->playerList[i];
+
         // live
         strcat(result, intToStr(player->live));
-        strcat(result, "&");
+        strcat(result, "|");
         // bomb quantity
         strcat(result, intToStr(player->bomb_quantity));
-        strcat(result, "&");
+        strcat(result, "|");
         // bomb pow
-        strcat(result, intToStr(player->bomb_seted));
-        strcat(result, "&");
+        strcat(result, intToStr(player->power));
+        strcat(result, "|");
+        // // bomb seted
+        // strcat(result, intToStr(player->bomb_seted));
+        // strcat(result, "|");
         // speed
         strcat(result, intToStr(player->speed));
-        strcat(result, "&");
+        strcat(result, "|");
         // pos x
         strcat(result, doubleToStr(player->position_x));
-        strcat(result, "&");
+        strcat(result, "|");
         // pos y
         strcat(result, doubleToStr(player->position_y));
-        strcat(result, "&");
+        strcat(result, "|");
+        // direction
+        strcat(result, intToStr(player->direction));
+        strcat(result, "|");
+        // current image
+        strcat(result, intToStr(player->currentImage));
+        strcat(result, "|");
     }
+
+    result[ strlen(result) - 1 ] = '&';
 
     // bomb n
-        for(int i = 0; play_room->bomb_list[i] != NULL; i++){
+    for(int i = 0; play_room->bomb_list[i] != NULL; i++){
         Bomb* bomb = play_room->bomb_list[i];
+
         // tọa độ x bomb
         strcat(result, doubleToStr(bomb->position_x));
-        strcat(result, "&");
+        strcat(result, "|");
         // tọa độ y bomb
         strcat(result, doubleToStr(bomb->position_y));
-        strcat(result, "&");
+        strcat(result, "|");
+        // chiều dài bomb
+        strcat(result, doubleToStr(bomb->length));
+        strcat(result, "|");
     }
 
+    // nếu có ít nhất 1 quả bom mới xuất hiện "|" thừa ở cuối
+    if ( play_room->bomb_list[0] != NULL ){
+        result[ strlen(result) - 1 ] = '\0';
+    }
+    
+
     // Thời gian còn lại của trò chơi
-    strcat(result, intToStr(play_room->time));
+    strcat(result, doubleToStr(play_room->time));
     strcat(result, "$$");
     return result;
 }

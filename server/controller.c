@@ -102,6 +102,7 @@ char *convertMapToString(int map[17][17]) {
         for (int j = 0; j < 17; j++){
             strcat(result, intToStr(map[i][j]));
         }
+        strcat(result, "|");
     }
     return result;
 }
@@ -333,7 +334,7 @@ char* getRoomInfo(char *request, struct sockaddr_in addr){
         return "2";
     }
 
-    User* owner = getUserById(room->id);
+    User* owner = getUserById(room->owner);
 
     User* player_list[room->quantity];
 
