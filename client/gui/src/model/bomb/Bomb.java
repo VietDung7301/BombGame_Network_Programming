@@ -1,4 +1,4 @@
-package model;
+package model.bomb;
 
 import javafx.scene.image.Image;
 
@@ -30,12 +30,5 @@ public class Bomb {
 	}
 	public int getInCol() {
 		return this.inCol;
-	}
-	
-	public boolean isBoom() {
-		if (System.currentTimeMillis() - timeSet >= TIMEBOOM) {
-			return true;
-		}
-		return false;
 	}
 }

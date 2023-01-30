@@ -105,7 +105,7 @@ public class ViewManager {
 		_1pBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				GameViewManager gameManager = new GameViewManager(1);
+				GameViewManager gameManager = new GameViewManager(1, 0);
 				gameManager.createNewGame(mainStage);
 			}
 		});
@@ -113,7 +113,7 @@ public class ViewManager {
 		_2pBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				GameViewManager gameManager = new GameViewManager(2);
+				GameViewManager gameManager = new GameViewManager(2, 0);
 				gameManager.createNewGame(mainStage);
 			}
 		});

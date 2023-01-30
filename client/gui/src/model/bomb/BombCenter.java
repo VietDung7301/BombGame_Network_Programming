@@ -1,4 +1,4 @@
-package model;
+package model.bomb;
 
 import javafx.scene.image.ImageView;
 

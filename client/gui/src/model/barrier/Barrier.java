@@ -1,4 +1,4 @@
-package model;
+package model.barrier;
 
 import javafx.scene.image.Image;
 
