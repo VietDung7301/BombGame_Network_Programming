@@ -4,7 +4,7 @@
 #include "util.h"
 
 /* Tăng lên mỗi khi khởi tạo 1 user mới */
-int userId = 0;
+int userId = -1;
 
 User* createUser(struct sockaddr_in addr) {
     userId++;

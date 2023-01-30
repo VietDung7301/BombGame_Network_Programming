@@ -2,7 +2,7 @@
 #include <string.h>
 #include "player.h"
 
-int playerId = 0;
+int playerId = -1;
 
 Player* createPlayer(int userId, int playRoomId) {
     playerId++;

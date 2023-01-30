@@ -3,7 +3,7 @@
 #include "playRoom.h"
 #include "player.h"
 
-int playRoomId = 0;
+int playRoomId = -1;
 
 PlayRoom* createPlayRoom() {
     playRoomId++;

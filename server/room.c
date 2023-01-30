@@ -2,7 +2,7 @@
 #include <string.h>
 #include "room.h"
 
-int roomId = 0;
+int roomId = -1;
 
 Room* createRoom(char* name, int owner) {
     roomId++;
