@@ -1,11 +1,12 @@
 #ifndef __CONTROLLER_H__
 #define __CONTROLLER_H__
 
-void destroyBarrier(int row, int col, PlayRoom* room);
-void eatItems(PlayRoom* room);
-void setBomb(PlayRoom* room);
+void handlePlayerAction(Player* player,PlayRoom* room,int direction, bool isPlantingBomb);
+void setBomb(Player* player, bool isPlantingBomb);
 void bombBoom(PlayRoom* room);
-void updateTimeLeft(playRoom* room);
-void createGameLoop(PlayRoom **room);
+void* updateBoomList(PlayRoom* room);
+void destroyBarrier(int row, int col, PlayRoom* room);
+void eatItems(Player* player);
+int getTimeLeft(PlayRoom* room);
 
 #endif

@@ -9,7 +9,10 @@ typedef struct {
     Player *playerList[4];  // Danh sách người chơi
     int map[17][17];        // Bản đồ game
     Bomb *bomb_list[289];
-    double time;            // Thời gian còn lại của game 
+    int number_of_bomb;
+    int number_of_boom;
+    Bomb *boom_list[289];
+    double startAt;            // Thời gian còn lại của game 
     int room_id;            // ID của phòng ban đầu
 } PlayRoom;
 

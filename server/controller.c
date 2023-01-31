@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <sys/types.h> 
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
@@ -14,9 +15,11 @@
 #include "bomb.h"
 #include "player.h"
 #include "playRoom.h"
+#include "gameController.h"
 
 #define INVALID_MSG "#serr#&Invalid request!"
 #define CHECK_CORE_DUMPED printf("check cordumped\n");
+#define TIME_ROOM 60
 
 int currentUser = 0;
 User *userList[100];
@@ -27,7 +30,8 @@ Room *roomList[100];
 int currentPlayRoom = 0;
 PlayRoom *playRoomList[100];
 
-
+int currentPlayer = 0;
+Player *playerList[100];
 /**
  * Tạo người dùng mới và thêm vào danh sách người dùng
  * @addr: Địa chỉ
@@ -295,13 +299,14 @@ char* startGame(char *request, struct sockaddr_in addr){
     playRoomList[currentPlayRoom++] = play_room;
 
     for (int i = 0; i < room->quantity; i++){
-        play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id);
+        play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id, 2, 2, 2);
     }
 
     char *convert_map_to_string = convertMapToString(play_room->map);
     printf("%s\n", convert_map_to_string);
+    int timeLeft = getTimeLeft(play_room);
 
-    return responseS008(play_room, convert_map_to_string);
+    return responseS008(play_room, convert_map_to_string, timeLeft);
 }
 
 /**
@@ -345,6 +350,61 @@ char* getRoomInfo(char *request, struct sockaddr_in addr){
     return responseS007(room, owner, player_list);
 }
 
+//api choi game
+bool getPlantingBomb(char* request){
+    char space[2];
+    space[0] = request[7];
+    space[1] = '\0';
+    int isPlanting = strToInt(space);
+    if(isPlanting ==  0)
+        return false;
+    return true;
+}
+
+Player* getPlayerById(int id){
+    for(int i=0; i<currentPlayer; i++){
+        if(playerList[i]->playerId == id)
+            return playerList[i];
+    }
+    return NULL;
+}
+
+PlayRoom* getPlayroomById(int id){
+    for(int i=0; i<currentPlayRoom; i++){
+        if(playRoomList[i]->id == id)
+            return playRoomList[i];
+    }
+    return NULL;
+}
+
+int getTimeLeft(PlayRoom* room){
+    time_t now = time(NULL);
+    int time = now - room->startAt;
+    return TIME_ROOM - time;
+}
+
+int getDirection(char* request){
+    //todo
+    return 1;
+}
+
+
+char* getNewGameStatus(char* request, struct sockaddr_in addr){
+    User* user = requestUser(addr);
+    bool isPlantingBomb = getPlantingBomb(request);
+    Player* player = getPlayerById(user->id);
+    PlayRoom* room = getPlayroomById(player->currentPlayRoom);
+    int direction = getDirection(request);
+
+    handlePlayerAction(player, room, direction, isPlantingBomb);
+
+    int timeLeft = getTimeLeft(room);
+
+    char* map_to_str = convertMapToString(room->map);
+
+    return responseS008(room, map_to_str, timeLeft);
+}
+
 /**
  * Xử lý request từ user
  * @request: message từ client
@@ -375,6 +435,7 @@ char* handlerRequest(char* request, struct sockaddr_in addr) {
         case 005: return joinRoom(request, addr);
         case 006: return startGame(request, addr);
         case 007: return getRoomInfo(request, addr);
+        case 8: return getNewGameStatus(request, addr);
         default:
             printf("Error from client: Invalid request!");
             return INVALID_MSG;

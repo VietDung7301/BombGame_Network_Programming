@@ -6,10 +6,10 @@
 Bomb* createBomb(Player *player) {
     Bomb *bomb = (Bomb*) malloc(sizeof(Bomb));
 
-    bomb->position_x = player->position_x;
-    bomb->position_y = player->position_y;
+    bomb->row = player->position_x;
+    bomb->col = player->position_y;
     bomb->player_id = player->playerId;
-    bomb->time = 5;
+    bomb->createAt = 5;
     bomb->length = player->power;
 
     return bomb;

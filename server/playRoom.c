@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "playRoom.h"
 #include "player.h"
 
@@ -17,7 +18,7 @@ PlayRoom* createPlayRoom() {
         }
     }
 
-    playRoom->time = 1000;
+    playRoom->startAt = time(NULL);
 
     return playRoom;
 }

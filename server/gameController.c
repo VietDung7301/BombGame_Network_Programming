@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#include "user.h"
+#include "bomb.h"
 #include "player.h"
 #include "playRoom.h"
 #define TIME_BOMB 2
@@ -18,39 +20,29 @@
         5. lay thoi gian cua phong choi do
         6. gui response ve cho user
 */
-char* handlePlayerAction(struct sockaddr_in addr, char* request){
-    User* user = requestUser(addr);
-    Player* player = getPlayerById(user->id);
-    Player* room = getPlayrommById(player->currentRoom);
-    bool isPlantingBomb = plantingBomb(request);
-    movePlayer();   //ben player
-    eatItems(player);
-    setBomb(player, isPlantingBomb);
-    bombBoom(room);
-    int timeLeft = getTimeLeft(room);
 
-    // thong tin response
-    strcat(response, "#s008#&");
-    strcat(response, mapToString(room->map));
-    strcat(response, playerInfoToString(player));
-    strcat(response, getBoomList(room));
-    strcat(response, timeRoomTostring(timeleft))
-    return response;
-}
 
 // tao bomb
-void setBomb(Player* player, bool isPlantingBomb){
-    Player* room = getPlayrommById(player->currentRoom);
+void setBomb(Player* player,PlayRoom* room, bool isPlantingBomb){
     int row, col;
     row = getCharacterRow(player->position_y);
     col = getCharacterCol(player->position_x);
-    if(isPlantingBomb && player->bomb_seted < player->bomb_quantity && room->map[row][col]==0){
+    if(isPlantingBomb && player->bomb_seted < player->bomb_quantity && player->live > 0 && room->map[row][col]==0){
         player->bomb_seted += 1;
         room->map[row][col] = 7;
         Bomb *bomb = createBomb(player);   // thoi gian tao bomb
-        addBombList(rom, bomb);
+        //them bomb
+        room->bomb_list[room->number_of_bomb] = bomb;
+        room->number_of_bomb += 1;
     }
 }
+
+//xu ly pha vat can
+void destroyBarrier(int row, int col, PlayRoom* room){
+    int random = (int) (rand() * (4 - 1 + 1.0)/(1.0 + RAND_MAX));
+    room->map[row][col] = - random;
+}
+
 
 /*
     -xu ly bomb no trong phong
@@ -60,37 +52,44 @@ void setBomb(Player* player, bool isPlantingBomb){
 */
 
 void bombBoom(PlayRoom* room){
-    int count, ar[4], ac[4], row, col, rowP, colP;
-    bool isBlock[4];
+    int count, row, col, rowP, colP;
+
     count = 0;
     time_t seconds;
     while(room->bomb_list[count]){
         seconds = time(NULL);
-        if(seconds - room->bomb_list[count]->time >= TIME_BOMB){
+        if(seconds - room->bomb_list[count]->createAt >= TIME_BOMB){
             //tao bomb trong boomList (boomList duoc dat trong room)
-            Bomb *boom = createBomb(room->bomb_list[count]); // tao ra 1 qua bom giong trong trong bomlist
+            Bomb *boom = (Bomb*) malloc(sizeof(Bomb));
+            // tao ra 1 qua bom giong trong trong bomlist
+            boom->row = room->bomb_list[count]->row;
+            boom->col = room->bomb_list[count]->col;
+            boom->player_id = room->bomb_list[count]->player_id;
+            boom->length = room->bomb_list[count]->length;
             boom->createAt = room->bomb_list[count]->createAt + 2; //update time bomb no;
-            addBoomList(rom, boom);
+            //them boom
+            room->boom_list[room->number_of_boom] = boom;
+            room->number_of_boom+=1;
 
             //xy ly bomb no
-            ar = {-1, 0, 1, 0};
-            ac = {0, -1, 0, 1};
-            isBlock = {false, false, false, false};
-            room->row = room->bomb_list[count]->row;
-            room->col = room->bomb_list[count]->col;
-            map[row][col] = 0;
+            int ar[4] = {-1, 0, 1, 0};
+            int ac[4] = {0, -1, 0, 1};
+            bool isBlock[4] = {false, false, false, false};
+            row = room->bomb_list[count]->row;
+            col = room->bomb_list[count]->col;
+            room->map[row][col] = 0;
             for(int i = 0; i < 4; i++){
-                if(room->bomb_list[count]->PlayerId == room->playerList[i]->id)
+                if(room->bomb_list[count]->player_id == room->playerList[i]->playerId)
                     room->playerList[i]->bomb_seted -= 1;
             }
             for(int i = 0;  i < room->bomb_list[count]->length; i++){
                 for(int j = 0; j < 4; j++){
                     if (!isBlock[j]) {
-                        if (map[row + ar[j]*i][col + ac[j]*i] == 1 || map[row + ar[j]*i][col + ac[j]*i] == 2 || map[row + ar[j]*i][col + ac[j]*i] == 9) {
+                        if (room->map[row + ar[j]*i][col + ac[j]*i] == 1 || room->map[row + ar[j]*i][col + ac[j]*i] == 2 || room->map[row + ar[j]*i][col + ac[j]*i] == 9) {
                             isBlock[j] = true;
                             continue;
                         }
-                        if (map[row + ar[j]*i][col + ac[j]*i] == 3 || map[row + ar[j]*i][col + ac[j]*i] == 4 || map[row + ar[j]*i][col + ac[j]*i] == 5) {
+                        if (room->map[row + ar[j]*i][col + ac[j]*i] == 3 || room->map[row + ar[j]*i][col + ac[j]*i] == 4 || room->map[row + ar[j]*i][col + ac[j]*i] == 5) {
                             destroyBarrier(row + ar[j]*i, col + ac[j]*i, room);
                             isBlock[j] = true;
                             continue;
@@ -103,7 +102,11 @@ void bombBoom(PlayRoom* room){
                         }
                 }
             }
-            room->bomb_list[count] = NULL;
+            //xoa bomb
+            free(room->bomb_list[count]);
+            room->bomb_list[count] = room->bomb_list[room->number_of_bomb - 1];
+            room->number_of_bomb -= 1;
+
             count++;
             }
         }
@@ -111,62 +114,57 @@ void bombBoom(PlayRoom* room){
 }
 
 // lay thong tin va update boom list
-char* getBoomList(playRoom* room){
-    char* response = (char *)malloc(100*sizeof(char));
-    count = 0;
+void* updateBoomList(PlayRoom* room){
+    int count = 0;
     time_t now = time(NULL);
-    while(room->boomList[count]){
-        if(now - boomList[count]->createAt <= 0.1){
-            strcat(response, toInfoBoom(boomList[count]))
-        }else{
-            freeBoom(room->boomList[count]);
+    while(room->boom_list[count]){
+        if(now - room->boom_list[count]->createAt >= 0.1){
+            free(room->boom_list[count]);
+            room->boom_list[count] = room->boom_list[room->number_of_boom - 1];
+            room->number_of_boom -= 1;
         }
         count++;
     }
-    return response;
 }
 
-//xu ly pha vat can
-void destroyBarrier(int row, int col, PlayRoom* room){
-    int random = (int) (rand() * (4 - 1 + 1.0)/(1.0 + RAND_MAX));
-    room->map[row][col] = - random;
-}
 
 // xu ly an vat pham cua nguoi choi
-void eatItems(Player* player){
-    PlayRoom* room = getPlayrommById(player->id);
+void eatItems(Player* player, PlayRoom* room){
     int row, col;
-    row = getCharacterRow(room->playerList[i]->position_y);
-    col = getCharacterCol(room->playerList[i]->position_x);
-    switch(room->map[row][col]){
-        case -1:
-            if(room->playerList[i]->live < 3)
-                room->playerList[i]->live++;
-            room->map[row][col] = 0;
-            break;
-        case -2:
-            if(room->playerList[i]->power < 5)
-                room->playerList[i]->power++;
-            room->map[row][col] = 0;
-            break;
-        case -3:
-            if(room->playerList[i]->bomb_quantity < 5)
-                room->playerList[i]->bomb_quantity++;
-            room->map[row][col] = 0;
-            break;
-        case -4:
-            if(room->playerList[i]->speed < 5)
-                room->playerList[i]->speed++;
-            room->map[row][col] = 0;
-            break;
-        default:
-            break;
+    for (int i=0; room->playerList[i] != NULL; i++){
+        row = getCharacterRow(room->playerList[i]->position_y);
+        col = getCharacterCol(room->playerList[i]->position_x);
+        switch(room->map[row][col]){
+            case -1:
+                if(room->playerList[i]->live < 3)
+                    room->playerList[i]->live++;
+                room->map[row][col] = 0;
+                break;
+            case -2:
+                if(room->playerList[i]->power < 5)
+                    room->playerList[i]->power++;
+                room->map[row][col] = 0;
+                break;
+            case -3:
+                if(room->playerList[i]->bomb_quantity < 5)
+                    room->playerList[i]->bomb_quantity++;
+                room->map[row][col] = 0;
+                break;
+            case -4:
+                if(room->playerList[i]->speed < 5)
+                    room->playerList[i]->speed++;
+                room->map[row][col] = 0;
+                break;
+            default:
+                break;
+        }
     }
 }
 
-// lay thoi gian con lai cua phong choi
-int getTimeLeft(playRoom* room){
-    time_t now = time(NULL);
-    int time = now - room->startAt;
-    return TIME_ROOM - time;
+// xu ly cac yee cau tren cua nguoi choi
+void handlePlayerAction(Player* player, PlayRoom* room, int direction, bool isPlantingBomb){
+    move(player, direction, room->map);   //ben player
+    eatItems(player, room);
+    setBomb(player, room, isPlantingBomb);
+    bombBoom(room);
 }

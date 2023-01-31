@@ -97,7 +97,7 @@ char *responseS007 (Room* room, User* owner, User* player_list[]){
  * ...&tọa độ x bomb 1 nổ&tọa độ y bomb 1 nổ&tọa độ x bomb 2 nổ&
  * ...&Thời gian còn lại của trò chơi$$
 */
-char *responseS008 (PlayRoom *play_room, char* string_map){
+char *responseS008 (PlayRoom *play_room,char* string_map,int timeLeft){
     
     char *result = (char*)malloc(1000);
     // response id
@@ -106,9 +106,8 @@ char *responseS008 (PlayRoom *play_room, char* string_map){
     strcat(result, string_map);
     strcat(result, "&");
     // player n
-    for(int i = 0; play_room->playerList[i] != NULL; i++){
+    for(int i=0; play_room->playerList[i]!=NULL; i++){
         Player* player = play_room->playerList[i];
-        // live
         strcat(result, intToStr(player->live));
         strcat(result, "&");
         // bomb quantity
@@ -129,18 +128,18 @@ char *responseS008 (PlayRoom *play_room, char* string_map){
     }
 
     // bomb n
-        for(int i = 0; play_room->bomb_list[i] != NULL; i++){
-        Bomb* bomb = play_room->bomb_list[i];
+    for(int i = 0; play_room->boom_list[i] != NULL; i++){
+        Bomb* bomb = play_room->boom_list[i];
         // tọa độ x bomb
-        strcat(result, doubleToStr(bomb->position_x));
+        strcat(result, intToStr(bomb->row));
         strcat(result, "&");
         // tọa độ y bomb
-        strcat(result, doubleToStr(bomb->position_y));
+        strcat(result, intToStr(bomb->col));
         strcat(result, "&");
     }
 
     // Thời gian còn lại của trò chơi
-    strcat(result, intToStr(play_room->time));
+    strcat(result, intToStr(timeLeft));
     strcat(result, "$$");
     return result;
 }
