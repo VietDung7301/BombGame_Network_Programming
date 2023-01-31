@@ -303,7 +303,7 @@ char* startGame(char *request, struct sockaddr_in addr){
     playRoomList[currentPlayRoom++] = play_room;
 
     for (int i = 0; i < room->quantity; i++){
-        play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id);
+        play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id, playerPosition[i][0], playerPosition[i][1], 2);
     }
 
     char *convert_map_to_string = convertMapToString(play_room->map);
@@ -383,7 +383,7 @@ char* handlerRequest(char* request, struct sockaddr_in addr) {
         case 5: return joinRoom(request, addr);
         case 6: return startGame(request, addr);
         case 7: return getRoomInfo(request, addr);
-        case 8: return playGame(request, addr);
+        // case 8: return playGame(request, addr);
         default:
             printf("Error from client: Invalid request!");
             return INVALID_MSG;

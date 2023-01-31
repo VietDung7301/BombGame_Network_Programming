@@ -4,7 +4,7 @@
 
 int playerId = -1;
 
-Player* createPlayer(int userId, int playRoomId) {
+Player* createPlayer(int userId, int playRoomId, double position_x, double position_y, int direction) {
     playerId++;
     Player *player = (Player*) malloc(sizeof(Player));
 
