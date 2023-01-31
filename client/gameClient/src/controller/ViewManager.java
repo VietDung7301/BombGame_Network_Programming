@@ -47,6 +47,7 @@ public class ViewManager {
 			
 			createButtonCreate(this.listroommap);
             CreateLoadingbtn(this.listroommap);
+			Createloadingwaitroom();
 			mainStage = new Stage();
 			mainStage.setScene(mainScene);
 			mainStage.setTitle("BoomIT 7");
@@ -217,6 +218,11 @@ public class ViewManager {
 			}
 
 		   } );
+	}
+	public void Createloadingwaitroom(){
+		for(ViewRoom room:this.listroommap){
+			room.loadingWaitroom(connect);
+		  }
 	}
 
 	public ViewRoom hasRoom(ViewRoom room){

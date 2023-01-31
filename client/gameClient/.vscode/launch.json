@@ -15,30 +15,29 @@
             "name": "Launch App",
             "request": "launch",
             "mainClass": "App",
-            "projectName": "FirstJava_f870818"
+            "projectName": "FirstGame_5bdbdfa0"
         },
         {
             "type": "java",
             "name": "Launch Main",
             "request": "launch",
             "mainClass": "application.Main",
-            "projectName": "FirstJava_f870818",
+            "projectName": "FirstGame_5bdbdfa0",
             "vmArgs": "--module-path /usr/share/openjfx/lib --add-modules=javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web"
-            
         },
         {
             "type": "java",
             "name": "Launch TestConnect",
             "request": "launch",
             "mainClass": "application.TestConnect",
-            "projectName": "FirstJava_f870818"
+            "projectName": "FirstGame_5bdbdfa0"
         },
         {
             "type": "java",
             "name": "Launch UDPclient",
             "request": "launch",
             "mainClass": "application.UDPclient",
-            "projectName": "FirstJava_f870818"
+            "projectName": "FirstGame_5bdbdfa0"
         }
     ]
 }

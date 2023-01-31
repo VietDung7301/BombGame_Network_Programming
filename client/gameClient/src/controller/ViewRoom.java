@@ -19,6 +19,8 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import model.Room;
 import model.User;
+import netwoork.Connect;
+import netwoork.ConnectLoadWaitRoom;
 
 public class ViewRoom {
     private Room room;
@@ -73,6 +75,19 @@ public class ViewRoom {
 	    playerImg.setImage(imageX);
             }    
     }
+    public void createUser(User user){
+        
+            joinbtn.setText("#"+room.getId()+" "+room.getName()+" "+user.getIdScene()+"/4");
+            String id="#player"+user.getIdScene();
+            String name="#username"+user.getIdScene();
+    	    ImageView playerImg=(ImageView) this.viewWaitRoom.lookup(id);
+            Label username=(Label) this.viewWaitRoom.lookup(name);
+            username.setText(user.getName());
+            Label title=(Label) this.viewWaitRoom.lookup("#title");
+            title.setText("#"+room.getId()+" "+room.getName()+" "+user.getIdScene()+"/4");
+    	    Image imageX=new Image("file:src/images/player"+user.getIdScene()+".png");
+	    playerImg.setImage(imageX);
+    }
     public boolean isFull(){
         return this.room.getUser_List().size() == 4;
     }
@@ -100,6 +115,36 @@ public class ViewRoom {
                e.printStackTrace();
         }
    }
+   public void loadingWaitroom(Connect connect){
+        ImageView btnback=(ImageView) viewWaitRoom.lookup("#loadingwaitroom");
+        String roomId=this.room.getId();
+        btnback.setOnMouseClicked(new javafx.event.EventHandler<MouseEvent>(){
+
+                @Override
+                public void handle(MouseEvent arg0) {
+                        ConnectLoadWaitRoom connectLoadWaitRoom=new ConnectLoadWaitRoom(connect);
+        connectLoadWaitRoom.setRoom(roomId);
+        Room updateRoom=connectLoadWaitRoom.getRoom();
+        ViewRoom room=new ViewRoom(updateRoom);
+                        for(User user:room.getRoom().getUser_List()){
+                                if(!Inlist(user)){
+                                createUser(user);
+                                }
+                        }
+                        
+                }
+                
+        });
+   }
+   public boolean Inlist(User user){
+ for(User user2:this.room.getUser_List()){
+      if(user2.getName().equals(user.getName())){
+        return true;
+      }
+}
+return false;
+   }
+   
    
    public Room getRoom() {
         return room;

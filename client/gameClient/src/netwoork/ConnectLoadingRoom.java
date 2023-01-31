@@ -36,12 +36,15 @@ public class ConnectLoadingRoom {
             owner.setIdScene(1);
             newRoom.setOwner(owner.getId());
             newRoom.getUser_List().add(owner);
+            ConnectLoadWaitRoom loadWaitRoom=new ConnectLoadWaitRoom(connect);
+            loadWaitRoom.setRoom(newRoom.getId());
+            Room newRoom2 =loadWaitRoom.getRoom();
             for(int j=0;j<Integer.parseInt(result[6])-1;j++){
                 User newUser=new User("#check","name");
                 newUser.setIdScene(j+2);
                 newRoom.getUser_List().add(newUser); 
             }
-            this.room.add(newRoom);
+            this.room.add(newRoom2);
             index+=4;
         }
     }
