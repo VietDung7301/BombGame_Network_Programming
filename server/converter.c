@@ -164,7 +164,7 @@ char *responseS008 (PlayRoom *play_room, char* string_map){
     if ( play_room->bomb_list[0] != NULL ){
         result[ strlen(result) - 1 ] = '\0';
     }
-    
+    strcat(result, "&");
 
     // Thời gian còn lại của trò chơi
     strcat(result, doubleToStr(play_room->time));
