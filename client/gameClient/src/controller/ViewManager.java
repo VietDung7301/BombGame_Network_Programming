@@ -103,6 +103,7 @@ public class ViewManager {
 					listrooMap.add(viewRoom);
 					user.setIdScene(1);
 					viewRoom.addUser(user);
+					Createloadingwaitroom();
 					mainStage.setScene(viewRoom.getViewWaitRoom());
 				  }
 
@@ -118,7 +119,7 @@ public class ViewManager {
                          
 						@Override
 						public void handle(MouseEvent arg0) {
-
+                        Createloadingwaitroom();
 							try {
 								String[] response=connect.SendAndRecvData("#c005#&"+room.getRoom().getId()+"$$", 5500);
 								if(response[3].equals("success")){
@@ -189,13 +190,15 @@ public class ViewManager {
 		
 								@Override
 								public void handle(MouseEvent arg0) {
+									Createloadingwaitroom();
 									try {
 										String[] response=connect.SendAndRecvData("#c005#&"+room.getRoom().getId()+"$$", 5500);
 										if(response[3].equals("success")){
-									mainStage.setScene(room.getViewWaitRoom());
+									
 									//User user=new User("id1","Nhat Sang");
 									user.setIdScene(room.getRoom().getUser_List().size());
 									room.addUser(user);
+									mainStage.setScene(room.getViewWaitRoom());
 										}
 									} catch (IOException e) {
 										// TODO Auto-generated catch block
@@ -222,6 +225,8 @@ public class ViewManager {
 	public void Createloadingwaitroom(){
 		for(ViewRoom room:this.listroommap){
 			room.loadingWaitroom(connect);
+			
+			mainStage.setScene(room.getViewWaitRoom());
 		  }
 	}
 
