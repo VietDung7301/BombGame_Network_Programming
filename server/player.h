@@ -14,8 +14,21 @@ typedef struct {
     int userId;
     int currentImage;       // (0 -> 3), thể hiện xem đang là ảnh nào
     int direction;          //(0 ->3) thể hiện hướng xoay hiện tại của nhân vật. 0: down 1: up 2: left 3: right
+    long lastTimeHit;       // Thời gian bất tử lấy bằng clock()
+    double layoutX;
+    double layoutY;
 } Player; 
 
-Player* createPlayer(int userId, int playRoomId);
+Player* createPlayer(int userId, int playRoomId, double position_x, double position_y, int direction);
+// Bomb *setBomb( Player *player );
+void restoreBomb( Player *player );
+void increaseLives( Player *player );
+void decreaseLive(Player *player);
+void increasePowBomb (Player *player);
+void increaseQuantityBomb( Player *player );
+void setDirection( Player *player, int direction );
+int getCharacterRow(double posY);
+int getCharacterCol(double posX);
+void move( Player *player, int direction, int map[17][17] );
 
 #endif

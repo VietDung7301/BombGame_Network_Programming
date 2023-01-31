@@ -11,9 +11,6 @@
 #include "converter.h"
 #include "user.h"
 #include "room.h"
-#include "bomb.h"
-#include "player.h"
-#include "playRoom.h"
 
 #define INVALID_MSG "#serr#&Invalid request!"
 #define CHECK_CORE_DUMPED printf("check cordumped\n");
@@ -220,7 +217,7 @@ char* changeClientName(char *request, struct sockaddr_in addr){
     // Handle request get new name
     char new_name[strlen(request)];
     int new_name_counter = 0;
-    for ( int i = 7; i < strlen(request) - 3; i++){
+    for ( int i = 7; i < strlen(request) - 2; i++){
         new_name[new_name_counter++] = request[i];
     }
     new_name[new_name_counter] = '\0';
@@ -250,7 +247,7 @@ char* joinRoom(char *request, struct sockaddr_in addr){
     User *user = requestUser(addr);
 
     if(user == NULL){
-        return "#err#&Ten da ton tai$$";
+        return "#err#&user khong ton tai$$";
     }
 
     // Handle request get room id
@@ -265,7 +262,7 @@ char* joinRoom(char *request, struct sockaddr_in addr){
     Room *room = getRoomById(id);
 
     if(room == NULL){
-        return "#err#&Ten da ton tai$$";
+        return "#err#&room khong ton tai$$";
     }
 
     bool is_success;
@@ -293,13 +290,13 @@ char* startGame(char *request, struct sockaddr_in addr){
 
     User *user = requestUser(addr);
     if(user == NULL){
-        return "#err#&User khong ton tai$$";
+        return "#err#&user khong ton tai$$";
     }
 
     // get room by id
     Room *room = getRoomById(user->currentRoom);
     if(room == NULL){
-        return "#err#&Room khong ton tai$$";
+        return "#err#&room khong ton tai$$";
     }
 
     PlayRoom *play_room = createPlayRoom();
@@ -307,7 +304,7 @@ char* startGame(char *request, struct sockaddr_in addr){
 
     for (int i = 0; i < room->quantity; i++){
         play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id);
-    }  
+    }
 
     char *convert_map_to_string = convertMapToString(play_room->map);
     // printf("%s\n", convert_map_to_string);
@@ -327,7 +324,7 @@ char* getRoomInfo(char *request, struct sockaddr_in addr){
     User *user = requestUser(addr);
 
     if(user == NULL){
-        return "#err#&Ten da ton tai$$";
+        return "#err#&user khong ton tai$$";
     }
 
     // Handle request get room id
@@ -338,13 +335,14 @@ char* getRoomInfo(char *request, struct sockaddr_in addr){
     }
     room_id[room_id_counter] = '\0';
     int id = strToInt(room_id);
+    
     // get room by id
     Room *room = getRoomById(id);
     if(room == NULL){
-        return "#err#&Ten da ton tai$$";
+        return "#err#&room khong ton tai$$";
     }
 
-    User* owner = getUserById(room->owner);
+    User* owner = getUserById(room->id);
 
     User* player_list[room->quantity];
 
@@ -354,47 +352,6 @@ char* getRoomInfo(char *request, struct sockaddr_in addr){
 
     return responseS007(room, owner, player_list);
 }
-
-/**
- * Chơi game
- * request struct: #c008#&1&up$$
- * @request: message từ client
- * @addr: địa chỉ client
- * return: response từ server
-*/
-char* playGame(char *request, struct sockaddr_in addr){
-
-    User *user = requestUser(addr);
-
-    if(user == NULL){
-        return "#err#&Ten da ton tai$$";
-    }
-
-    // Handle request get room id
-    char room_id[strlen(request)];
-    int room_id_counter = 0;
-    for ( int i = 7; i < strlen(request) - 2; i++){
-        room_id[room_id_counter++] = request[i];
-    }
-    room_id[room_id_counter] = '\0';
-    int id = strToInt(room_id);
-    // get room by id
-    Room *room = getRoomById(id);
-    if(room == NULL){
-        return "#err#&Ten da ton tai$$";
-    }
-
-    User* owner = getUserById(room->owner);
-
-    User* player_list[room->quantity];
-
-    for(int i = 0; i < room->quantity; i++){
-        player_list[i] = getUserById(room->playerList[i]);
-    }
-
-    return responseS007(room, owner, player_list);
-}
-
 
 /**
  * Xử lý request từ user
