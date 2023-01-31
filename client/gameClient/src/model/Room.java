@@ -1,5 +1,6 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Room {
@@ -10,11 +11,14 @@ public class Room {
         this.owner = owner;
         this.user_List = user_List;
     }
+    public Room() {
+        super();
+    }
     private String name;
     private int status;
     private int quantity;
     private String owner;
-    private List<User> user_List;
+    private List<User> user_List=new ArrayList<User>();
     public String getId() {
         return id;
     }
@@ -51,5 +55,7 @@ public class Room {
     public void setUser_List(List<User> user_List) {
         this.user_List = user_List;
     }
-    
+    public void printRoom(){
+        System.out.println("id: "+id+".name: ."+name+".owner: "+owner+". Number: "+user_List.size());
+    }
 }

@@ -2,6 +2,7 @@ package controller;
 
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import javafx.fxml.FXMLLoader;
@@ -25,18 +26,40 @@ public class ViewRoom {
     private Scene viewWaitRoom;
     public ViewRoom(Room room){
              this.room=room;
-            String textBtn="#"+room.getId()+" "+room.getName()+" "+"0/4";
+            String textBtn="#"+room.getId()+" "+room.getName()+" "+this.room.getUser_List().size()+"/4";
             joinbtn=new Button(textBtn);
             joinbtn.setPrefWidth(363);
             joinbtn.setPrefHeight(69);
             joinbtn.setFont(Font.font("Bold",23));
             joinbtn.setStyle("-fx-background-color: orange;"); 
             joinbtn.setTextFill(Color.WHITE);
+            URL url;
+        try {
+                url = new File("src/view/Scene_6.fxml").toURI().toURL();
+                this.viewWaitRoom=new Scene(FXMLLoader.load(url), 771, 551);
+        } catch (Exception e) {
+               
+                e.printStackTrace();
+        }
+           
+            if(this.room.getUser_List().size()!=0){
+             for(User user:this.room.getUser_List()){
+            String id="#player"+user.getIdScene();
+            String name="#username"+user.getIdScene();
+    	    ImageView playerImg=(ImageView) this.viewWaitRoom.lookup(id);
+            Label username=(Label) this.viewWaitRoom.lookup(name);
+            username.setText(user.getName());
+            Label title=(Label) this.viewWaitRoom.lookup("#title");
+            title.setText("#"+room.getId()+" "+room.getName()+" "+user.getIdScene()+"/4");
+    	    Image imageX=new Image("file:src/images/player"+user.getIdScene()+".png");
+	    playerImg.setImage(imageX);
+             }
+            }
     }
+    
     public void addUser(User user){
             if(!isFull()){
             this.room.getUser_List().add(user);
-           
             user.setIdScene(this.room.getUser_List().size());
             joinbtn.setText("#"+room.getId()+" "+room.getName()+" "+user.getIdScene()+"/4");
             String id="#player"+user.getIdScene();
@@ -55,9 +78,8 @@ public class ViewRoom {
     }
     public void setViewWaitRoom(Stage mainStage,Scene previousScene){
         try {
-                URL url = new File("src/view/Scene_6.fxml").toURI().toURL();
-                this.viewWaitRoom=new Scene(FXMLLoader.load(url), 771, 551);
-                ImageView btnback=(ImageView) this.viewWaitRoom.lookup("#back");
+                
+                ImageView btnback=(ImageView) viewWaitRoom.lookup("#back");
                 btnback.setCursor(Cursor.HAND);				
                 btnback.setOnMouseClicked(new javafx.event.EventHandler<MouseEvent>() {
                         public void handle(MouseEvent event) {
@@ -65,12 +87,27 @@ public class ViewRoom {
                                 mainStage.setScene(previousScene);
                         }
                 });
-      } catch (Exception e) {
+                
+                ImageView startbtn=(ImageView) viewWaitRoom.lookup("#start");
+                startbtn.setCursor(Cursor.HAND);
+                startbtn.setOnMouseClicked(new javafx.event.EventHandler<MouseEvent>() {
+                        public void handle(MouseEvent event) {
+                        
+
+                        }
+                });
+        }catch (Exception e) {
                e.printStackTrace();
         }
    }
    
-   public void StartGame(){
+   public Room getRoom() {
+        return room;
+}
+public void setRoom(Room room) {
+        this.room = room;
+}
+public void StartGame(){
 
    }
      

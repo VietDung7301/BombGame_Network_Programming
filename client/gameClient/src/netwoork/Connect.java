@@ -27,7 +27,7 @@ public class Connect {
 	  ds.receive(response);
 	  String result1=new String(buffer, 0, response.getLength());
 	  // tach ra lay tung phan cua mang response
-	  String[] result2=result1.split("[#$%^&*()!,]");
+	  String[] result2=result1.split("[#$&]");
 	  return result2;
 	  
   }
