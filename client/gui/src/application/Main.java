@@ -1,14 +1,15 @@
 package application;
-	
+import model.User;
+import network.Connect;
 import controller.ViewManager;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
 
+
 public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
-		System.out.println("Client running");
 		try {
 			ViewManager manager = new ViewManager();
 			primaryStage = manager.getMainStage();

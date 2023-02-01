@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
+import exception.InvalidResponseException;
 import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -89,25 +90,7 @@ public class GameViewManager {
 //	-2: Power item
 //	-3: Quantity item
 //	-4: Speed item
-	private static int map[][] = {
-		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		{1, 0, 0, 3, 3, 4, 1, 0, 1, 0, 2, 0, 0, 0, 0, 0, 1},
-		{1, 0, 2, 3, 2, 5, 0, 0, 1, 5, 0, 0, 2, 0, 2, 0, 1},
-		{1, 0, 2, 0, 1, 1, 2, 3, 5, 5, 2, 2, 1, 0, 2, 0, 1},
-		{1, 0, 0, 0, 0, 0, 2, 2, 1, 1, 2, 0, 0, 0, 0, 0, 1},
-		{1,-1, 2, 1, 1, 4, 4, 0, 0, 0, 0, 0, 2, 1, 1, 0, 1},
-		{1, 0, 0, 2, 2, 3, 2, 2, 1, 0, 1, 0, 1, 1, 0, 0, 1},
-		{1, 2, 0, 0, 1, 4, 3, 9, 9, 9, 4, 0, 1, 0, 0, 2, 1},
-		{1, 0, 0, 2, 2, 4, 1, 9, 9, 9, 1, 0, 1, 2, 0, 3, 1},
-		{1, 0, 2, 1, 1, 0, 0, 9, 9, 9, 0, 3, 2, 1, 2, 4, 1},
-		{1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 0, 5, 0, 0, 0, 1},
-		{1, 0, 1, 0, 2, 2, 2, 0, 5, 0, 2, 1, 1, 0, 2, 0, 1},
-		{1, 0, 1, 0, 2, 3, 3, 4, 2, 0, 0, 0, 1, 0, 2, 0, 1},
-		{1, 0, 0, 0, 0, 0, 1, 0, 2, 5, 2, 0, 0, 0, 0, 0, 1},
-		{1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 2, 2, 0, 2, 1, 0, 1},
-		{1, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-	};
+	private int map[][];
 				
 	AnimationTimer gameTimer;
 	
@@ -116,42 +99,11 @@ public class GameViewManager {
 		this.controlPlayerPosition = controlPlayerPos;
 		this.gameService = new GameService();
 		initializeStage();
+		initializeCharacter();
 		initializeLabel();
 		initializeButton();
-		createKeyListeners();
-	}
-	
-	private void initializeGame() {
-		gameService.testService();
-		GameResponse gameStatus = 
-				gameService.startGame(numPlayer);
-		
-		// create new map
-		this.map = gameStatus.getMap();
-		
-		// create new player list
-		playerList = new Player[numPlayer];
-		for (int i=0; i < numPlayer; i++) {
-			if (i != controlPlayerPosition)
-				playerList[i] = new Player(gameStatus.getPlayerList()[i]);
-			else {
-				controlPlayer = new ControlPlayer(
-						gameStatus.getPlayerList()[i],
-						KEY_UP,
-						KEY_DOWN,
-						KEY_LEFT,
-						KEY_RIGHT,
-						KEY_SPACE
-						);
-			}
-		}
-		
-		// Update timeLeft;
-		this.timeLeft = gameStatus.getTimeLeft();
-		timeLabel.setText("" + ((int) this.timeLeft));
-		
-		// Update boom list
-		this.boomList = gameStatus.getBoomList();
+		initializeGameElement();
+		initializeKeyListeners();
 	}
 	
 	private void initializeStage() {
@@ -171,6 +123,18 @@ public class GameViewManager {
 		santaClause = new ImageView("file:src/images/santa_clause.png");
 		santaClause.setLayoutX(291.0);
 		santaClause.setLayoutY(257.0);
+	}
+	
+	private void initializeCharacter() {
+		playerList = new Player[numPlayer];
+		for (int i=0; i < numPlayer; i++) {
+			if (i != controlPlayerPosition)
+				playerList[i] = new Player();
+			else {
+				controlPlayer = new ControlPlayer(KEY_UP,KEY_DOWN,KEY_LEFT,KEY_RIGHT,KEY_SPACE);
+				playerList[i] = controlPlayer;
+			}
+		}
 	}
 	
 	private void initializeLabel() {
@@ -198,7 +162,13 @@ public class GameViewManager {
 		});
 	}
 	
-	private void createKeyListeners() {
+	private void initializeGameElement() {
+		bombLineList = new ArrayList<BombLine>();
+		bombCenterList = new ArrayList<BombCenter>();
+		boomList = new ArrayList<Boom>();
+	}
+	
+	private void initializeKeyListeners() {
 		gameScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent event) {
@@ -247,8 +217,12 @@ public class GameViewManager {
 	public void createNewGame(Stage menuStage) {
 		this.menuStage = menuStage;
 		this.menuStage.hide();
-		
-		initializeGame();
+		try {
+			gameService.testService();
+			gameService.startGame(numPlayer);			
+		} catch (InvalidResponseException e) {
+			e.printStackTrace();
+		}
 		createGameLoop();
 		gameStage.show();
 	}
@@ -259,7 +233,7 @@ public class GameViewManager {
 			
 			@Override
 			public void handle(long now) {
-				if (now - lastUpdate >= 30_000_000) {
+				if (now - lastUpdate >= 30_000_000L) {
 					lastUpdate = now;
 					updateGame();
 					bombBoom();
@@ -272,28 +246,32 @@ public class GameViewManager {
 		gameTimer.start();
 	}
 	
-	void updateGame() {
-		GameResponse newGameStatus = 
-				gameService.sendPlayerAction(
-						numPlayer, 
-						controlPlayer.isPlantingBomb(), 
-						controlPlayer.getMovingDirection()
-				);
-		
-		// Update Map
-		this.map = newGameStatus.getMap();
-		
-		// Update player infor
-		for (int i=0; i < numPlayer; i++) {
-			playerList[i].setBasicInfor(newGameStatus.getPlayerList()[i]);
+	private void updateGame() {
+		try {
+			GameResponse newGameStatus = 
+					gameService.sendPlayerAction(
+							numPlayer, 
+							controlPlayer.isPlantingBomb(), 
+							controlPlayer.getMovingDirection()
+					);
+			
+			// Update Map
+			this.map = newGameStatus.getMap();
+			
+			// Update player infor
+			for (int i=0; i < numPlayer; i++) {
+				playerList[i].setBasicInfor(newGameStatus.getPlayerList()[i]);
+			}
+			
+			// Update timeLeft;
+			this.timeLeft = newGameStatus.getTimeLeft();
+			timeLabel.setText("" + ((int) this.timeLeft));
+			
+			// Update boom list
+			this.boomList = newGameStatus.getBoomList();
+		} catch (InvalidResponseException e) {
+			e.printStackTrace();
 		}
-		
-		// Update timeLeft;
-		this.timeLeft = newGameStatus.getTimeLeft();
-		timeLabel.setText("" + ((int) this.timeLeft));
-		
-		// Update boom list
-		this.boomList = newGameStatus.getBoomList();
 	}
 	
 	private void createGameElement() {

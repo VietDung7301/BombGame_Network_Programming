@@ -13,8 +13,8 @@ public class ControlPlayer extends Player {
 	Direction movingDirection;
 	private boolean plantingBomb;
 
-	public ControlPlayer(Character character, KeyCode up, KeyCode down, KeyCode left, KeyCode right, KeyCode bomb) {
-		super(character);
+	public ControlPlayer(KeyCode up, KeyCode down, KeyCode left, KeyCode right, KeyCode bomb) {
+		super();
 		this.up = up;
 		this.down = down;
 		this.left = left;

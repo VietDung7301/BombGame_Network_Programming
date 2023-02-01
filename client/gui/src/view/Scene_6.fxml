@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="551.0" prefWidth="771.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ImageView fitHeight="552.0" fitWidth="869.0" layoutY="2.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/menu/BackGround.jpg" />
+         </image>
+      </ImageView>
+      <ImageView id="player1" fitHeight="150.0" fitWidth="200.0" layoutX="46.0" layoutY="108.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView id="player2" fitHeight="150.0" fitWidth="179.0" layoutX="525.0" layoutY="108.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView id="player3" fitHeight="150.0" fitWidth="200.0" layoutX="46.0" layoutY="309.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView id="player4" fitHeight="150.0" fitWidth="200.0" layoutX="525.0" layoutY="309.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView id="start" fitHeight="55.0" fitWidth="199.0" layoutX="286.0" layoutY="487.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/mission_button.png" />
+         </image>
+      </ImageView>
+      <Label layoutX="353.0" layoutY="495.0" prefHeight="38.0" prefWidth="105.0" text="Start" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="26.0" />
+         </font>
+      </Label>
+      <ImageView id="back" fitHeight="63.0" fitWidth="83.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/menu/back.png" />
+         </image></ImageView>
+      <Label id="title" layoutX="276.0" layoutY="14.0" prefHeight="55.0" prefWidth="259.0" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="23.0" />
+         </font>
+      </Label>
+      <Label id="username1" layoutX="77.0" layoutY="58.0" prefHeight="38.0" prefWidth="138.0" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="23.0" />
+         </font></Label>
+      <Label id="username2" layoutX="556.0" layoutY="50.0" prefHeight="38.0" prefWidth="138.0" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="23.0" />
+         </font></Label>
+      <Label id="username3" layoutX="77.0" layoutY="259.0" prefHeight="38.0" prefWidth="138.0" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="23.0" />
+         </font></Label>
+      <Label id="username4" layoutX="556.0" layoutY="257.0" prefHeight="38.0" prefWidth="138.0" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="23.0" />
+         </font></Label>
+      <ImageView id="loadingwaitroom" fitHeight="55.0" fitWidth="50.0" layoutX="704.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/loadingIcon-removebg-preview.png" />
+         </image>
+      </ImageView>
+   </children>
+</Pane>

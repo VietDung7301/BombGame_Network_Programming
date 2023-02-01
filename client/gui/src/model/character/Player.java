@@ -19,6 +19,10 @@ public class Player extends Character{
 	private long timeKey;
 	private ImageView image[][];
 	
+	public Player() {
+		this(Direction.NONE, 0, 0, 0, 0, 0, 0);
+	}
+	
 	public Player(Direction direction, int lives, int qtyBomb, int powBomb, int speed, double posX, double posY) {
 		super(lives, qtyBomb, powBomb, speed, posX, posY);
 		this.image = new ImageView[4][4];
@@ -56,5 +60,7 @@ public class Player extends Character{
 		this.currentImage = character.currentImage;
 		this.posX = character.posX;
 		this.posY = character.posY;
+		this.setLayoutX(posX - WIDTH/2);
+		this.setLayoutY(posY - HEIGHT/1.5);
 	}
 }

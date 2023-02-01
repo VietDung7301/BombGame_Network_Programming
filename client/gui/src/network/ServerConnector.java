@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 
 
 public class ServerConnector {
-	private static final String SERVER_ADDRESS = "172.18.164.18";
+	private static final String SERVER_ADDRESS = "172.17.119.224";
 	private static final int SERVER_PORT = 8000;
 	
 	private InetAddress ip;
