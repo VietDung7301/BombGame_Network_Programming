@@ -84,7 +84,7 @@ char* getRoomList(){
         strcat(response, intToStr(roomList[i]->quantity));
         strcat(response, "&");
         for(int j = 0; j < currentUser; j++){
-            if(userList[j]->id == roomList[i]->id){
+            if(userList[j]->id == roomList[i]->owner){
                 strcat(response, userList[j]->name);
                 break;
             }
