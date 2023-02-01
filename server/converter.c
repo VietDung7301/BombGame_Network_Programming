@@ -106,37 +106,49 @@ char *responseS008 (PlayRoom *play_room,char* string_map,int timeLeft){
     strcat(result, string_map);
     strcat(result, "&");
     // player n
-    for(int i=0; play_room->playerList[i]!=NULL; i++){
+    for(int i=0; i < play_room->quantity; i++){
         Player* player = play_room->playerList[i];
         strcat(result, intToStr(player->live));
-        strcat(result, "&");
+        strcat(result, "|");
         // bomb quantity
         strcat(result, intToStr(player->bomb_quantity));
-        strcat(result, "&");
+        strcat(result, "|");
         // bomb pow
         strcat(result, intToStr(player->bomb_seted));
-        strcat(result, "&");
+        strcat(result, "|");
         // speed
         strcat(result, intToStr(player->speed));
-        strcat(result, "&");
+        strcat(result, "|");
         // pos x
         strcat(result, doubleToStr(player->position_x));
-        strcat(result, "&");
+        strcat(result, "|");
         // pos y
         strcat(result, doubleToStr(player->position_y));
-        strcat(result, "&");
+        strcat(result, "|");
+        // direction
+        strcat(result, intToStr(player->direction));
+        strcat(result, "|");
+        // currentImage
+        strcat(result, intToStr(player->currentImage));
+        if (i < play_room->quantity - 1) {
+            strcat(result, "|");
+        }
     }
+    strcat(result, "&");
 
     // bomb n
-    for(int i = 0; play_room->boom_list[i] != NULL; i++){
-        Bomb* bomb = play_room->boom_list[i];
+    for(int i = 0; i<play_room->number_of_boom; i++){
+        Bomb* boom = play_room->boom_list[i];
         // tọa độ x bomb
-        strcat(result, intToStr(bomb->row));
-        strcat(result, "&");
+        strcat(result, intToStr(boom->row));
+        strcat(result, "|");
         // tọa độ y bomb
-        strcat(result, intToStr(bomb->col));
-        strcat(result, "&");
+        strcat(result, intToStr(boom->col));
+        if (i < play_room->number_of_boom) {
+            strcat(result, "|");
+        }
     }
+    strcat(result, "&");
 
     // Thời gian còn lại của trò chơi
     strcat(result, intToStr(timeLeft));

@@ -19,7 +19,7 @@
 
 #define INVALID_MSG "#serr#&Invalid request!"
 #define CHECK_CORE_DUMPED printf("check cordumped\n");
-#define TIME_ROOM 60
+#define TIME_ROOM 150
 
 int currentUser = 0;
 User *userList[100];
@@ -297,13 +297,14 @@ char* startGame(char *request, struct sockaddr_in addr){
 
     PlayRoom *play_room = createPlayRoom();
     playRoomList[currentPlayRoom++] = play_room;
+    play_room->quantity = room->quantity;
 
     for (int i = 0; i < room->quantity; i++){
         play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id, 2, 2, 2);
+        playerList[currentPlayer++] = play_room->playerList[i];
     }
 
     char *convert_map_to_string = convertMapToString(play_room->map);
-    printf("%s\n", convert_map_to_string);
     int timeLeft = getTimeLeft(play_room);
 
     return responseS008(play_room, convert_map_to_string, timeLeft);
@@ -361,9 +362,9 @@ bool getPlantingBomb(char* request){
     return true;
 }
 
-Player* getPlayerById(int id){
+Player* getPlayerByUserId(int id){
     for(int i=0; i<currentPlayer; i++){
-        if(playerList[i]->playerId == id)
+        if(playerList[i]->userId == id)
             return playerList[i];
     }
     return NULL;
@@ -385,14 +386,15 @@ int getTimeLeft(PlayRoom* room){
 
 int getDirection(char* request){
     //todo
-    return 1;
+    return 3;
 }
 
 
 char* getNewGameStatus(char* request, struct sockaddr_in addr){
     User* user = requestUser(addr);
+    printf("1");
     bool isPlantingBomb = getPlantingBomb(request);
-    Player* player = getPlayerById(user->id);
+    Player* player = getPlayerByUserId(user->id);
     PlayRoom* room = getPlayroomById(player->currentPlayRoom);
     int direction = getDirection(request);
 
@@ -426,15 +428,15 @@ char* handlerRequest(char* request, struct sockaddr_in addr) {
     code[3] = '\n';
     icode = strToInt(code);
     switch (icode) {
-        case 000: return addUser(addr, request);break;
-        case 001: return getUserInfor(addr);
+        case 0: return addUser(addr, request);break;
+        case 1: return getUserInfor(addr);
             break;
-        case 002: return changeClientName(request, addr);
-        case 003: return getRoomList();
-        case 004: return addRoom(request, addr);
-        case 005: return joinRoom(request, addr);
-        case 006: return startGame(request, addr);
-        case 007: return getRoomInfo(request, addr);
+        case 2: return changeClientName(request, addr);
+        case 3: return getRoomList();
+        case 4: return addRoom(request, addr);
+        case 5: return joinRoom(request, addr);
+        case 6: return startGame(request, addr);
+        case 7: return getRoomInfo(request, addr);
         case 8: return getNewGameStatus(request, addr);
         default:
             printf("Error from client: Invalid request!");

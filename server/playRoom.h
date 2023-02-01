@@ -11,6 +11,7 @@ typedef struct {
     Bomb *bomb_list[289];
     int number_of_bomb;
     int number_of_boom;
+    int quantity;
     Bomb *boom_list[289];
     double startAt;            // Thời gian còn lại của game 
     int room_id;            // ID của phòng ban đầu
