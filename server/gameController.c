@@ -52,13 +52,13 @@ void destroyBarrier(int row, int col, PlayRoom* room){
 */
 
 void bombBoom(PlayRoom* room){
-    int count, row, col, rowP, colP;
+    int row, col, rowP, colP;
 
-    count = 0;
     time_t seconds;
-    while(room->bomb_list[count]){
+    for (int count=0; count<room->number_of_bomb; count++) {
         seconds = time(NULL);
         if(seconds - room->bomb_list[count]->createAt >= TIME_BOMB){
+            printf("bomb boom at: %d %d\n", room->bomb_list[count]->row, room->bomb_list[count]->col);
             //tao bomb trong boomList (boomList duoc dat trong room)
             Bomb *boom = (Bomb*) malloc(sizeof(Bomb));
             // tao ra 1 qua bom giong trong trong bomlist
@@ -78,11 +78,21 @@ void bombBoom(PlayRoom* room){
             row = room->bomb_list[count]->row;
             col = room->bomb_list[count]->col;
             room->map[row][col] = 0;
-            for(int i = 0; i < 4; i++){
+            for(int i = 0; i < room->quantity; i++){
                 if(room->bomb_list[count]->player_id == room->playerList[i]->playerId)
                     room->playerList[i]->bomb_seted -= 1;
             }
-            for(int i = 0;  i < room->bomb_list[count]->length; i++){
+
+            // Gây sát thương cho player
+            // Tâm bomb
+            for(int k = 0; k < room->quantity; k++){
+                rowP = getCharacterRow(room->playerList[k]->position_y);
+                colP = getCharacterCol(room->playerList[k]->position_x);
+                if (rowP == row && colP == col)
+                    room->playerList[k]->live -= 1;
+            }
+            // Đường bomb
+            for(int i = 1;  i < room->bomb_list[count]->length; i++){
                 for(int j = 0; j < 4; j++){
                     if (!isBlock[j]) {
                         if (room->map[row + ar[j]*i][col + ac[j]*i] == 1 || room->map[row + ar[j]*i][col + ac[j]*i] == 2 || room->map[row + ar[j]*i][col + ac[j]*i] == 9) {
@@ -94,21 +104,21 @@ void bombBoom(PlayRoom* room){
                             isBlock[j] = true;
                             continue;
                         }
-                        for(int k = 0; k < 4; k++){
+                        for(int k = 0; k < room->quantity; k++){
                             rowP = getCharacterRow(room->playerList[k]->position_y);
                             colP = getCharacterCol(room->playerList[k]->position_x);
                             if(rowP == (row + ar[j]*i) && colP == (col + ac[j]*i))
                                 room->playerList[k]->live -= 1;
                         }
+                    }
                 }
             }
             //xoa bomb
+            room->map[room->bomb_list[count]->row][room->bomb_list[count]->col] = 0;
             free(room->bomb_list[count]);
             room->bomb_list[count] = room->bomb_list[room->number_of_bomb - 1];
             room->number_of_bomb -= 1;
-
-            count++;
-            }
+            
         }
     }
 }

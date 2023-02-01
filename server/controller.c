@@ -20,6 +20,7 @@
 #define INVALID_MSG "#serr#&Invalid request!"
 #define CHECK_CORE_DUMPED printf("check cordumped\n");
 #define TIME_ROOM 150
+const double CELL = 710.0/17;
 
 int currentUser = 0;
 User *userList[100];
@@ -300,7 +301,14 @@ char* startGame(char *request, struct sockaddr_in addr){
     play_room->quantity = room->quantity;
 
     for (int i = 0; i < room->quantity; i++){
-        play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id, 2, 2, 2);
+        if (i == 0)
+            play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id, 1.5*CELL, 1.5*CELL, 0);
+        else if (i == 1) 
+            play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id, 15.5*CELL, 1.5*CELL, 0);
+        else if (i == 2)
+            play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id, 1.5*CELL, 15.5*CELL, 1);
+        else if (i == 3)
+            play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id, 15.5*CELL, 15.5*CELL, 1);
         playerList[currentPlayer++] = play_room->playerList[i];
     }
 
@@ -394,20 +402,20 @@ int getDirection(char* request){
         count++;
     }
     direction_str[count] = '\0';
-    //printf("%s\n", getDirection);
-    if(strcmp(direction_str, "down"))
+    // printf("%s\n", direction_str);
+    if(strcmp(direction_str, "down") == 0)
         return 0;
     
-    if(strcmp(direction_str, "up"))
+    if(strcmp(direction_str, "up") == 0)
         return 1;
     
-    if(strcmp(direction_str, "left"))
+    if(strcmp(direction_str, "left") == 0)
         return 2;
     
-    if(strcmp(direction_str, "right"))
+    if(strcmp(direction_str, "right") == 0)
         return 3;
 
-    if(strcmp(direction_str, "none"))
+    if(strcmp(direction_str, "none") == 0)
         return 4;
 
     return -1;

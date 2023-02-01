@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include<time.h>
 #include "bomb.h"
 #include "player.h"
@@ -95,12 +96,12 @@ double getDisMove( Player *player ) {
 }
 
 int getCharacterRow(double posY) {
-    double result = (posY + HEIGHT - 0.8*WIDTH) / CELL_SIZE;
+    double result = posY / CELL_SIZE;
     return (int) result;
 }
 
 int getCharacterCol(double posX) {
-    double result = (posX + (WIDTH - CELL_SIZE)/2 ) / CELL_SIZE;
+    double result = posX / CELL_SIZE;
     return (int) result;
 }
 

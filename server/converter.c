@@ -114,7 +114,7 @@ char *responseS008 (PlayRoom *play_room,char* string_map,int timeLeft){
         strcat(result, intToStr(player->bomb_quantity));
         strcat(result, "|");
         // bomb pow
-        strcat(result, intToStr(player->bomb_seted));
+        strcat(result, intToStr(player->power));
         strcat(result, "|");
         // speed
         strcat(result, intToStr(player->speed));
@@ -144,6 +144,9 @@ char *responseS008 (PlayRoom *play_room,char* string_map,int timeLeft){
         strcat(result, "|");
         // tọa độ y bomb
         strcat(result, intToStr(boom->col));
+        strcat(result, "|");
+        // chiều dài bomb
+        strcat(result, intToStr(boom->length));
         if (i < play_room->number_of_boom) {
             strcat(result, "|");
         }
