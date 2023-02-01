@@ -386,7 +386,31 @@ int getTimeLeft(PlayRoom* room){
 
 int getDirection(char* request){
     //todo
-    return 3;
+    //printf("1");
+    char direction_str[6];
+    int count = 0;
+    for (int i=9; request[i]!='$'; i++){
+        direction_str[count] = request[i];
+        count++;
+    }
+    direction_str[count] = '\0';
+    //printf("%s\n", getDirection);
+    if(strcmp(direction_str, "down"))
+        return 0;
+    
+    if(strcmp(direction_str, "up"))
+        return 1;
+    
+    if(strcmp(direction_str, "left"))
+        return 2;
+    
+    if(strcmp(direction_str, "right"))
+        return 3;
+
+    if(strcmp(direction_str, "none"))
+        return 4;
+
+    return -1;
 }
 
 

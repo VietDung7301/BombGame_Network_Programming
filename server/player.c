@@ -12,6 +12,7 @@ const int DOWN = 0;
 const int UP = 1;
 const int LEFT = 2;
 const int RIGHT = 3;
+const int NONE = 4;
 const double CELL_SIZE = 710.0/17;
 const double HEIGHT = 62;               // height of image that display as character
 const double WIDTH = 43;                // width of image that display as character
