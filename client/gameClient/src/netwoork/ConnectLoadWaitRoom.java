@@ -20,7 +20,8 @@ public class ConnectLoadWaitRoom {
                 room.setId(roomId);
                 room.setName(response[3]);
                 int numberUser=Integer.parseInt(response[6]);
-                User owner=new User("adc",response[5]);
+                String[] id=response[5].split("User");
+                User owner=new User(id[1],response[5]);
                 owner.setIdScene(1);
                 List<User> listuser=new ArrayList<User>();
                 listuser.add(owner);
@@ -30,7 +31,9 @@ public class ConnectLoadWaitRoom {
                     listuser.add(player);
                 }
                 room.setOwner(owner.getId());
+
                 room.setUser_List(listuser);
+              //  System.out.println("Number of user: "+room.getUser_List().size());
                 this.room=room;
                 
 

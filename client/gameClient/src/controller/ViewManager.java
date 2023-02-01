@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Optional;
+import java.util.Timer;
 
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -38,13 +39,19 @@ public class ViewManager {
 	private Scene mainScene;
 	private Stage mainStage;
 	private List<ViewRoom> listroommap=new ArrayList<ViewRoom>();
-	
-	public ViewManager(User user,Connect connect) {
+	//private Timer timer;
+	public ViewManager(User user,Connect connect,Stage primaryStage) {
 		try {
 			this.user=user;
 			this.connect=connect;
+			this.mainStage=primaryStage;
+			//this.timer=new Timer();
 			initScenes();
-			
+			ConnectLoadingRoom newConnect=new ConnectLoadingRoom(connect);
+			newConnect.setListRoom();
+			for(Room readyRoom:newConnect.getRoom()){
+				this.listroommap.add(new ViewRoom(readyRoom));
+			}
 			createButtonCreate(this.listroommap);
             CreateLoadingbtn(this.listroommap);
 			Createloadingwaitroom();
@@ -76,7 +83,13 @@ public class ViewManager {
 			@Override
 			public void handle(MouseEvent event) {
 				try {
-				
+					ConnectLoadingRoom newConnect=new ConnectLoadingRoom(connect);
+					newConnect.setListRoom();
+					for(Room readyRoom:newConnect.getRoom()){
+						if(hasRoom(new ViewRoom(readyRoom))==null){
+						listrooMap.add(new ViewRoom(readyRoom));
+						}
+					}
 				//Create a dialog to input room's name
 				TextInputDialog dialog = new TextInputDialog();
 			    dialog.setTitle("Input Dialog");
@@ -103,8 +116,20 @@ public class ViewManager {
 					listrooMap.add(viewRoom);
 					user.setIdScene(1);
 					viewRoom.addUser(user);
-					Createloadingwaitroom();
-					mainStage.setScene(viewRoom.getViewWaitRoom());
+					
+					    
+						mainStage.setScene(viewRoom.getViewWaitRoom());
+						
+						Createloadingwaitroom();
+						MyTask mytask=new MyTask(connect, listroommap);
+						mytask.setUser(user);
+						Timer timer=new Timer();
+						timer.scheduleAtFixedRate(mytask, 0, 500);
+						//StartRoom startroom=new StartRoom(listrooMap, user.getId());
+						//startroom.start();
+						//Thread.sleep(500);
+						
+					
 				  }
 
 				  for(ViewRoom room:listrooMap){
@@ -119,7 +144,12 @@ public class ViewManager {
                          
 						@Override
 						public void handle(MouseEvent arg0) {
-                        Createloadingwaitroom();
+							
+                       Createloadingwaitroom();
+					   MyTask mytask=new MyTask(connect, listrooMap);
+					   mytask.setUser(user);
+					   Timer timer=new Timer();
+					   timer.scheduleAtFixedRate(mytask, 0, 500);
 							try {
 								String[] response=connect.SendAndRecvData("#c005#&"+room.getRoom().getId()+"$$", 5500);
 								if(response[3].equals("success")){
@@ -128,19 +158,29 @@ public class ViewManager {
 							
 							user.setIdScene(room.getRoom().getUser_List().size());
 							room.addUser(user);
+							
 								}
+							
+
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
-							}
+							} 
+						}
+							
+						
 
 							
 							
 							
-						}
+					
 						
-					});
-				  }
+					}
+				 );
+				}
+			
+				  
+				   
 				
 				}
 			}catch(Exception e){
@@ -150,6 +190,8 @@ public class ViewManager {
 	});
 	return listrooMap;		
 	}
+
+
 
 	public void CreateLoadingbtn(List<ViewRoom> listroom){
            ImageView loadingbtn=(ImageView) mainScene.lookup("#loading");
@@ -190,7 +232,14 @@ public class ViewManager {
 		
 								@Override
 								public void handle(MouseEvent arg0) {
+									
 									Createloadingwaitroom();
+									MyTask mytask=new MyTask(connect, listroommap);
+									mytask.setUser(user);
+									Timer timer=new Timer();
+						
+						timer.scheduleAtFixedRate(mytask, 0, 500);
+						
 									try {
 										String[] response=connect.SendAndRecvData("#c005#&"+room.getRoom().getId()+"$$", 5500);
 										if(response[3].equals("success")){
@@ -199,14 +248,16 @@ public class ViewManager {
 									user.setIdScene(room.getRoom().getUser_List().size());
 									room.addUser(user);
 									mainStage.setScene(room.getViewWaitRoom());
+									
 										}
 									} catch (IOException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
-									}
+									} 
 									
 									
 								}
+							
 								
 							});
 						  }
@@ -223,11 +274,11 @@ public class ViewManager {
 		   } );
 	}
 	public void Createloadingwaitroom(){
-		for(ViewRoom room:this.listroommap){
-			room.loadingWaitroom(connect);
-			
-			mainStage.setScene(room.getViewWaitRoom());
-		  }
+		for(ViewRoom view:listroommap){
+			view.loadingWaitroom(connect);
+
+		}
+		
 	}
 
 	public ViewRoom hasRoom(ViewRoom room){
@@ -237,6 +288,11 @@ public class ViewManager {
 		}
 	  }
 	  return null;
+	}
+	public void StartGame(){
+		for(ViewRoom view:this.listroommap){
+			
+		  }  
 	}
 	
 	

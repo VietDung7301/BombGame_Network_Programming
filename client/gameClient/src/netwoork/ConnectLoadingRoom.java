@@ -18,12 +18,12 @@ public class ConnectLoadingRoom {
     public void setListRoom() throws IOException{
         
         String[] result=connect.SendAndRecvData("#c003#", 5500);
-        int k=0;
+        /*int k=0;
         System.out.println(result.length);
         for(String re:result){
             System.out.println(k+":"+re);
             k++;
-        }
+        }*/
         int length=result.length;
         int loop=(length-4)/4;
         int index=0;

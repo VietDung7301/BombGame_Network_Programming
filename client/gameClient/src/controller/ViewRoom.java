@@ -13,10 +13,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.robot.Robot;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.scene.input.InputEvent;
 import model.Room;
 import model.User;
 import netwoork.Connect;
@@ -39,6 +42,8 @@ public class ViewRoom {
         try {
                 url = new File("src/view/Scene_6.fxml").toURI().toURL();
                 this.viewWaitRoom=new Scene(FXMLLoader.load(url), 771, 551);
+                
+
         } catch (Exception e) {
                
                 e.printStackTrace();
@@ -117,24 +122,27 @@ public class ViewRoom {
    }
    public void loadingWaitroom(Connect connect){
         ImageView btnback=(ImageView) viewWaitRoom.lookup("#loadingwaitroom");
+        btnback.setCursor(Cursor.HAND);
         String roomId=this.room.getId();
-        btnback.setOnMouseClicked(new javafx.event.EventHandler<MouseEvent>(){
-
-                @Override
-                public void handle(MouseEvent arg0) {
-                        ConnectLoadWaitRoom connectLoadWaitRoom=new ConnectLoadWaitRoom(connect);
+       // btnback.setOnMouseClicked(new javafx.event.EventHandler<MouseEvent>(){
+              //  @Override
+               // public void handle(MouseEvent arg0) {
+        ConnectLoadWaitRoom connectLoadWaitRoom=new ConnectLoadWaitRoom(connect);
         connectLoadWaitRoom.setRoom(roomId);
         Room updateRoom=connectLoadWaitRoom.getRoom();
+        this.room=updateRoom;
         ViewRoom room=new ViewRoom(updateRoom);
                         for(User user:room.getRoom().getUser_List()){
-                                if(!Inlist(user)){
+                                
                                 createUser(user);
-                                }
+                                
                         }
-                        
-                }
+                                    
+               //}
+
                 
-        });
+       // });
+  
    }
    public boolean Inlist(User user){
  for(User user2:this.room.getUser_List()){
