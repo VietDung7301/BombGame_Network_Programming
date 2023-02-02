@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Scanner;
 
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -105,7 +106,9 @@ public class ViewManager {
 		_1pBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				GameViewManager gameManager = new GameViewManager(1, 0);
+				Scanner sc = new Scanner(System.in);
+				int t = sc.nextInt();
+				GameViewManager gameManager = new GameViewManager(t, 0);
 				gameManager.createNewGame(mainStage);
 			}
 		});
@@ -113,7 +116,9 @@ public class ViewManager {
 		_2pBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				GameViewManager gameManager = new GameViewManager(1, 0);
+				Scanner sc = new Scanner(System.in);
+				int t = sc.nextInt();
+				GameViewManager gameManager = new GameViewManager(t, 0);
 				gameManager.createNewGame(mainStage);
 			}
 		});

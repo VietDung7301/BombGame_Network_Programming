@@ -233,7 +233,7 @@ public class GameViewManager {
 			
 			@Override
 			public void handle(long now) {
-				if (now - lastUpdate >= 30_000_000L) {
+				if (now - lastUpdate >= 300_000_000L) {
 					lastUpdate = now;
 					updateGame();
 					bombBoom();

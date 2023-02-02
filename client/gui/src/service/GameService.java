@@ -3,6 +3,7 @@ package service;
 import model.common.Direction;
 import network.ServerConnector;
 
+import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import exception.InvalidResponseException;
@@ -28,7 +29,7 @@ public class GameService {
 	private static final String GET_ROOM_DETAIL_RES = "#s007#";
 	private static final String ADD_ROOM_RES = "#s004#";
 	private static final String JOIN_ROOOM_RES = "#s005#";
-	private static final String START_GAME_RES = "#s008#";
+	private static final String START_GAME_RES = "#s006#";
 	private static final String PLAY_GAME_RES = "#s008#";
 	
 	ServerConnector connector;
@@ -50,32 +51,16 @@ public class GameService {
 		req = converter.paramToRequest(ADD_ROOM, "Phong 1");
 		res = connector.sendData(req);
 		System.out.println("response: " + res);
+		Scanner sc = new Scanner(System.in);
+		int t = sc.nextInt();
 	}
 	
-	public GameResponse startGame(int numPlayer) throws InvalidResponseException {
+	public void startGame(int numPlayer) throws InvalidResponseException {
 		String req = converter.paramToRequest(START_GAME);
 		String res = connector.sendData(req);
 		try {
 			String[] resList = res.split("&");
 			
-			GameResponse gameResponse = new GameResponse();
-			
-			
-			
-			if (!resList[0].equals(START_GAME_RES)) {
-				throw new InvalidResponseException();
-			}
-			
-			
-			
-			setMap(resList[1], gameResponse);
-			setPlayerList(resList[2], gameResponse, numPlayer);
-			setBoomList(resList[3], gameResponse);
-			setTimeLeft(resList[4], gameResponse);
-			
-			System.out.println("Ran here");
-			
-			return gameResponse;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new InvalidResponseException();
@@ -91,7 +76,7 @@ public class GameService {
 			
 			GameResponse gameResponse = new GameResponse();
 			
-			if (!resList[0].equals(START_GAME_RES)) {
+			if (!resList[0].equals(PLAY_GAME_RES)) {
 				throw new InvalidResponseException();
 			}
 			
@@ -134,16 +119,16 @@ public class GameService {
 		try {
 			String[] cellList = str.split(Pattern.quote("|"));
 			
-			for (int i=0; i<numPlayer; i+= 8) {
+			for (int i=0; i<numPlayer; i++) {
 				Character character = new Character (
-						Integer.parseInt(cellList[i]),
-						Integer.parseInt(cellList[i + 1]),
-						Integer.parseInt(cellList[i + 2]),
-						Integer.parseInt(cellList[i + 3]),
-						Double.parseDouble(cellList[i + 4]),
-						Double.parseDouble(cellList[i + 5]),
-						Direction.parseDirection(Integer.parseInt(cellList[i + 6])),
-						Integer.parseInt(cellList[i + 7])
+						Integer.parseInt(cellList[8*i]),
+						Integer.parseInt(cellList[8*i + 1]),
+						Integer.parseInt(cellList[8*i + 2]),
+						Integer.parseInt(cellList[8*i + 3]),
+						Double.parseDouble(cellList[8*i + 4]),
+						Double.parseDouble(cellList[8*i + 5]),
+						Direction.parseDirection(Integer.parseInt(cellList[8*i + 6])),
+						Integer.parseInt(cellList[8*i + 7])
 					);
 				gameResponse.setPlayerInfor(i, character);
 			}
