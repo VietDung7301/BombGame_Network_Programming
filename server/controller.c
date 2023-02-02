@@ -286,16 +286,25 @@ char* joinRoom(char *request, struct sockaddr_in addr){
  * return: response từ server
 */
 char* startGame(char *request, struct sockaddr_in addr){
-
+    // Lấy thông tin người chơi
     User *user = requestUser(addr);
     if(user == NULL){
-        return "1";
+        return "#serr#&Unknow error$$";
     }
 
-    // get room by id
+    // Lấy thông tin phòng
     Room *room = getRoomById(user->currentRoom);
     if(room == NULL){
-        return "#serr#&";
+        return "#serr#&Unknow error$$";
+    }
+
+    // Nếu người chơi không phải chủ phòng => fail
+    if (room->owner != user->id) {
+        return "#serr#&Ban khong phai chu phong$$";
+    }
+    // Nếu phòng chơi chỉ có 1 người chơi
+    if (room->quantity < 2) {
+        return "#serr#&Khong du nguoi choi$$";
     }
 
     room->status = 1;
@@ -318,7 +327,7 @@ char* startGame(char *request, struct sockaddr_in addr){
     char *convert_map_to_string = convertMapToString(play_room->map);
     int timeLeft = getTimeLeft(play_room);
 
-    return responseS008(play_room, convert_map_to_string, timeLeft);
+    return "#s006#&1$$";
 }
 
 /**
