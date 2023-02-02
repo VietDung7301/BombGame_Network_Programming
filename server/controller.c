@@ -188,11 +188,13 @@ char* addRoom(char* request, struct sockaddr_in addr) {
         user->currentRoom = room->id;
         roomList[currentRoom] = room;
         currentRoom++;
-        strcpy(response, "#s004#");
+        strcpy(response, "#s004#&");
         strcat(response, name);
+        strcat(response, "&");
+        strcat(response, intToStr(room->id));
         strcat(response, "$$");
     }else{
-        strcpy(response, "#serr#Ten da ton tai$$");
+        strcpy(response, "#serr#&Ten da ton tai$$");
     }
     return response;
 }
@@ -293,9 +295,10 @@ char* startGame(char *request, struct sockaddr_in addr){
     // get room by id
     Room *room = getRoomById(user->currentRoom);
     if(room == NULL){
-        return "2";
+        return "#serr#&";
     }
 
+    room->status = 1;
     PlayRoom *play_room = createPlayRoom();
     playRoomList[currentPlayRoom++] = play_room;
     play_room->quantity = room->quantity;

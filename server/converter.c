@@ -75,6 +75,9 @@ char *responseS007 (Room* room, User* owner, User* player_list[]){
     // room id
     strcat(result, intToStr(room->id));
     strcat(result, "&");
+    // room status
+    strcat(result, intToStr(room->status));
+    strcat(result, "&");
     // owner name
     strcat(result, owner->name);
     strcat(result, "&");
