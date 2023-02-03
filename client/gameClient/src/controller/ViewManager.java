@@ -54,7 +54,7 @@ public class ViewManager {
 			}
 			createButtonCreate(this.listroommap);
             CreateLoadingbtn(this.listroommap);
-			Createloadingwaitroom();
+			Loadingwaitroom();
 			mainStage = new Stage();
 			mainStage.setScene(mainScene);
 			mainStage.setTitle("BoomIT 7");
@@ -108,7 +108,8 @@ public class ViewManager {
 				  if(!resul[1].equals("serr")){
 					//add room
 					List<User> listUser=new ArrayList<User>();
-					Room newRoom=new Room(""+listrooMap.size(),roomName,user.getId(),listUser);
+					
+					Room newRoom=new Room(""+(listrooMap.size()+1),roomName,user.getId(),listUser,1);
 				    ViewRoom viewRoom=new ViewRoom(newRoom);
                     viewRoom.setViewWaitRoom(mainStage, mainScene);
 					listRoomFrame.getChildren().addAll(viewRoom.getJoinbtn());
@@ -120,8 +121,8 @@ public class ViewManager {
 					    
 						mainStage.setScene(viewRoom.getViewWaitRoom());
 						
-						Createloadingwaitroom();
-						MyTask mytask=new MyTask(connect, listroommap);
+						Loadingwaitroom();
+						MyTask mytask=new MyTask(connect, listroommap,mainStage);
 						mytask.setUser(user);
 						Timer timer=new Timer();
 						timer.scheduleAtFixedRate(mytask, 0, 500);
@@ -145,17 +146,17 @@ public class ViewManager {
 						@Override
 						public void handle(MouseEvent arg0) {
 							
-                       Createloadingwaitroom();
-					   MyTask mytask=new MyTask(connect, listrooMap);
+                       Loadingwaitroom();
+					   MyTask mytask=new MyTask(connect, listrooMap,mainStage);
 					   mytask.setUser(user);
 					   Timer timer=new Timer();
 					   timer.scheduleAtFixedRate(mytask, 0, 500);
-							try {
-								String[] response=connect.SendAndRecvData("#c005#&"+room.getRoom().getId()+"$$", 5500);
+							/*try {
+							/* 	String[] response=connect.SendAndRecvData("#c005#&"+room.getRoom().getId()+"$$", 5500);
 								if(response[3].equals("success")){
-									
+									System.out.println("asd");
 							mainStage.setScene(room.getViewWaitRoom());
-							
+							//System.out.println("asd");
 							user.setIdScene(room.getRoom().getUser_List().size());
 							room.addUser(user);
 							
@@ -165,7 +166,7 @@ public class ViewManager {
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
-							} 
+							}*/ 
 						}
 							
 						
@@ -233,13 +234,14 @@ public class ViewManager {
 								@Override
 								public void handle(MouseEvent arg0) {
 									
-									Createloadingwaitroom();
-									MyTask mytask=new MyTask(connect, listroommap);
+									//if(room.getRoom().getStatus()!=1){
+									Loadingwaitroom();
+									MyTask mytask=new MyTask(connect, listroommap,mainStage);
 									mytask.setUser(user);
 									Timer timer=new Timer();
 						
-						timer.scheduleAtFixedRate(mytask, 0, 500);
-						
+						        timer.scheduleAtFixedRate(mytask, 0, 500);
+								if(room.getRoom().getStatus()!=1){
 									try {
 										String[] response=connect.SendAndRecvData("#c005#&"+room.getRoom().getId()+"$$", 5500);
 										if(response[3].equals("success")){
@@ -248,12 +250,15 @@ public class ViewManager {
 									user.setIdScene(room.getRoom().getUser_List().size());
 									room.addUser(user);
 									mainStage.setScene(room.getViewWaitRoom());
-									
+									System.out.println("dsa");
 										}
 									} catch (IOException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
-									} 
+									}
+								}else{
+									System.out.println("Room started");
+								} 
 									
 									
 								}
@@ -273,10 +278,9 @@ public class ViewManager {
 
 		   } );
 	}
-	public void Createloadingwaitroom(){
+	public void Loadingwaitroom(){
 		for(ViewRoom view:listroommap){
-			view.loadingWaitroom(connect);
-
+			view.loadingWaitroom(connect,mainStage);
 		}
 		
 	}

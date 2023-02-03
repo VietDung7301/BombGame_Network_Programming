@@ -18,22 +18,23 @@ public class ConnectLoadWaitRoom {
                 String[] response=connet.SendAndRecvData("#c007#&"+roomId+"$$", 5500);
                 Room room=new Room();
                 room.setId(roomId);
+            
                 room.setName(response[3]);
-                int numberUser=Integer.parseInt(response[6]);
-                String[] id=response[5].split("User");
-                User owner=new User(id[1],response[5]);
+                room.setStatus(Integer.parseInt(response[5]));
+               room.setCheckforload(1);
+                int numberUser=Integer.parseInt(response[7]);
+                String[] ownerid=response[6].split("User");
+                User owner=new User(ownerid[1],response[6]);
                 owner.setIdScene(1);
                 List<User> listuser=new ArrayList<User>();
                 listuser.add(owner);
                 for(int i=0;i<numberUser-1;i++){
-                    User player=new User("av",response[i+8]);
+                    User player=new User(response[i+9].split("User")[1],response[i+9]);
                     player.setIdScene(i+2);
                     listuser.add(player);
                 }
                 room.setOwner(owner.getId());
-
                 room.setUser_List(listuser);
-              //  System.out.println("Number of user: "+room.getUser_List().size());
                 this.room=room;
                 
 

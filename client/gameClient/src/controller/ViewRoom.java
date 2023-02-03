@@ -2,6 +2,7 @@ package controller;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -120,28 +121,33 @@ public class ViewRoom {
                e.printStackTrace();
         }
    }
-   public void loadingWaitroom(Connect connect){
+   public void loadingWaitroom(Connect connect,Stage mainStage){
         ImageView btnback=(ImageView) viewWaitRoom.lookup("#loadingwaitroom");
         btnback.setCursor(Cursor.HAND);
         String roomId=this.room.getId();
-       // btnback.setOnMouseClicked(new javafx.event.EventHandler<MouseEvent>(){
-              //  @Override
-               // public void handle(MouseEvent arg0) {
+       
         ConnectLoadWaitRoom connectLoadWaitRoom=new ConnectLoadWaitRoom(connect);
         connectLoadWaitRoom.setRoom(roomId);
         Room updateRoom=connectLoadWaitRoom.getRoom();
         this.room=updateRoom;
         ViewRoom room=new ViewRoom(updateRoom);
                         for(User user:room.getRoom().getUser_List()){
-                                
                                 createUser(user);
-                                
                         }
-                                    
-               //}
-
+        if(this.room.getStatus()==1 ){
+              
+                try {
+                        URL url = new File("src/view/GameScene.fxml").toURI().toURL();
+                        this.viewWaitRoom=new Scene(FXMLLoader.load(url), 710, 710);
+                        mainStage.setScene(viewWaitRoom);
+                } catch (IOException e) {
+                        
+                        e.printStackTrace();
+                }
+                this.room.setCheckforload(0);
+                this.room.setStatus(2);
                 
-       // });
+        }
   
    }
    public boolean Inlist(User user){

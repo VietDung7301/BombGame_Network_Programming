@@ -20,21 +20,24 @@ public class TestConnect  {
 			for(String str:result) {
 				System.out.println(str);
 			}
-			ConnectLoadingRoom join=new ConnectLoadingRoom(test);
+			/*ConnectLoadingRoom join=new ConnectLoadingRoom(test);
 			join.setListRoom();
 			List<Room> listroom=join.getRoom();
 			for(Room room:listroom){
 				room.printRoom();
-			}
-			String[] result2=test.SendAndRecvData("#c005#&0$$", 5500);
+			}*/
+			String[] result2=test.SendAndRecvData("#c005#&1$$", 5500);
 			int i=0;
 			for(String str:result2) {
-				System.out.println("i "+str);
+				System.out.println(i+":"+str);
+				i++;
 			}
 			//ConnectLoadWaitRoom wait=new ConnectLoadWaitRoom(test);
-			String[] result3=test.SendAndRecvData("#c007#&0$$", 5500);
+			i=0;
+			String[] result3=test.SendAndRecvData("#c007#&1$$", 5500);
 			for(String str:result3) {
-				System.out.println("i "+str);
+				System.out.println(i+": "+str);
+				i++;
 			}
 
 		} catch (SocketException e) {

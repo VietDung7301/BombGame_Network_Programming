@@ -18,12 +18,6 @@ public class ConnectLoadingRoom {
     public void setListRoom() throws IOException{
         
         String[] result=connect.SendAndRecvData("#c003#", 5500);
-        /*int k=0;
-        System.out.println(result.length);
-        for(String re:result){
-            System.out.println(k+":"+re);
-            k++;
-        }*/
         int length=result.length;
         int loop=(length-4)/4;
         int index=0;
@@ -32,19 +26,21 @@ public class ConnectLoadingRoom {
             Room newRoom=new Room();
             newRoom.setName(result[index+4]);
             newRoom.setId(result[index+5]);
-            User owner=new User("#host",result[index+7]);
+            User owner=new User(result[index+7].split("User")[1],result[index+7]);
             owner.setIdScene(1);
             newRoom.setOwner(owner.getId());
             newRoom.getUser_List().add(owner);
+            
             ConnectLoadWaitRoom loadWaitRoom=new ConnectLoadWaitRoom(connect);
-            loadWaitRoom.setRoom(newRoom.getId());
+            loadWaitRoom.setRoom(result[index+5]);
             Room newRoom2 =loadWaitRoom.getRoom();
-            for(int j=0;j<Integer.parseInt(result[6])-1;j++){
+          /* for(int j=0;j<Integer.parseInt(result[6])-1;j++){
                 User newUser=new User("#check","name");
                 newUser.setIdScene(j+2);
-                newRoom.getUser_List().add(newUser); 
-            }
+                newRoom2.getUser_List().add(newUser); 
+            }*/
             this.room.add(newRoom2);
+
             index+=4;
         }
     }
