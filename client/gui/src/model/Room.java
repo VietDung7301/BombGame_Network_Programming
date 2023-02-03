@@ -5,12 +5,7 @@ import java.util.List;
 
 public class Room {
     private String id;
-    public Room(String id, String name, String owner, List<User> user_List) {
-        this.id = id;
-        this.name = name;
-        this.owner = owner;
-        this.user_List = user_List;
-    }
+    
     public Room() {
         super();
     }
@@ -18,6 +13,24 @@ public class Room {
     private int status;
     private int quantity;
     private String owner;
+    private int checkforload;
+    public Room(String id, String name, String owner, List<User> user_List,int checkforload) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.owner = owner;
+        this.user_List = user_List;
+        this.status=0;
+        this.checkforload=checkforload;
+        this.quantity = 1;
+    }
+    
+    public int getCheckforload() {
+        return checkforload;
+    }
+    public void setCheckforload(int checkforload) {
+        this.checkforload = checkforload;
+    }
     private List<User> user_List=new ArrayList<User>();
     public String getId() {
         return id;

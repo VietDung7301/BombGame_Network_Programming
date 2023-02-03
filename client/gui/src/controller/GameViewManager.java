@@ -95,6 +95,7 @@ public class GameViewManager {
 	AnimationTimer gameTimer;
 	
 	public GameViewManager(int numPlayer, int controlPlayerPos) {
+		System.out.println("num: " + numPlayer + ' ' + controlPlayerPos);
 		this.numPlayer = numPlayer;
 		this.controlPlayerPosition = controlPlayerPos;
 		this.gameService = new GameService();
@@ -216,13 +217,6 @@ public class GameViewManager {
 	
 	public void createNewGame(Stage menuStage) {
 		this.menuStage = menuStage;
-		this.menuStage.hide();
-		try {
-			gameService.testService();
-			gameService.startGame(numPlayer);			
-		} catch (InvalidResponseException e) {
-			e.printStackTrace();
-		}
 		createGameLoop();
 		gameStage.show();
 	}

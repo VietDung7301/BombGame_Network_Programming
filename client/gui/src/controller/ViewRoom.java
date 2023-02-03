@@ -2,6 +2,7 @@ package controller;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -13,13 +14,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.robot.Robot;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.scene.input.InputEvent;
 import model.Room;
 import model.User;
-import network.Connect;
+import network.ServerConnector;
 import network.ConnectLoadWaitRoom;
 
 public class ViewRoom {
@@ -39,6 +43,8 @@ public class ViewRoom {
         try {
                 url = new File("src/view/Scene_6.fxml").toURI().toURL();
                 this.viewWaitRoom=new Scene(FXMLLoader.load(url), 771, 551);
+                
+
         } catch (Exception e) {
                
                 e.printStackTrace();
@@ -115,26 +121,26 @@ public class ViewRoom {
                e.printStackTrace();
         }
    }
-   public void loadingWaitroom(Connect connect){
+   public void loadingWaitroom(ServerConnector connect,Stage mainStage){
         ImageView btnback=(ImageView) viewWaitRoom.lookup("#loadingwaitroom");
+        btnback.setCursor(Cursor.HAND);
         String roomId=this.room.getId();
-        btnback.setOnMouseClicked(new javafx.event.EventHandler<MouseEvent>(){
-
-                @Override
-                public void handle(MouseEvent arg0) {
-                        ConnectLoadWaitRoom connectLoadWaitRoom=new ConnectLoadWaitRoom(connect);
+       
+        ConnectLoadWaitRoom connectLoadWaitRoom=new ConnectLoadWaitRoom(connect);
         connectLoadWaitRoom.setRoom(roomId);
         Room updateRoom=connectLoadWaitRoom.getRoom();
+        this.room=updateRoom;
         ViewRoom room=new ViewRoom(updateRoom);
                         for(User user:room.getRoom().getUser_List()){
-                                if(!Inlist(user)){
                                 createUser(user);
-                                }
                         }
-                        
-                }
-                
-        });
+        if(this.room.getStatus()==1 ){
+        	GameViewManager gameManager = new GameViewManager(room.getRoom().getUser_List().size(), 0);
+    		gameManager.createNewGame(mainStage);
+            this.room.setCheckforload(0);
+            this.room.setStatus(2);    
+        }
+  
    }
    public boolean Inlist(User user){
  for(User user2:this.room.getUser_List()){

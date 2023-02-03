@@ -45,4 +45,16 @@ public class ServerConnector {
 		}
 		return null;
 	}
+	
+	public String[] SendAndRecvData(String data) throws IOException {
+		DatagramPacket dataSend =new DatagramPacket(data.getBytes(),data.getBytes().length,ip,port);
+		socket.send(dataSend);
+		byte[] buffer = new byte[1024];
+		DatagramPacket response=new DatagramPacket(buffer,buffer.length);
+		socket.receive(response);
+		String result1=new String(buffer, 0, response.getLength());
+		// tach ra lay tung phan cua mang response
+		String[] result2=result1.split("[#$&]");
+		return result2;  
+	  }
 }

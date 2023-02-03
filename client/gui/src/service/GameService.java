@@ -41,18 +41,18 @@ public class GameService {
 	}
 	
 	public void testService() {
-		System.out.println("Khoi tao ngoi choi: ");
-		String req = converter.paramToRequest(NEW_USER);
-		String res = connector.sendData(req);
-		String userName = res.split("&")[1];
-		System.out.println("User name: " + userName);
-		
-		System.out.println("Tao phong: ");
-		req = converter.paramToRequest(ADD_ROOM, "Phong 1");
-		res = connector.sendData(req);
-		System.out.println("response: " + res);
-		Scanner sc = new Scanner(System.in);
-		int t = sc.nextInt();
+//		System.out.println("Khoi tao ngoi choi: ");
+//		String req = converter.paramToRequest(NEW_USER);
+//		String res = connector.sendData(req);
+//		String userName = res.split("&")[1];
+//		System.out.println("User name: " + userName);
+//		
+//		System.out.println("Tao phong: ");
+//		req = converter.paramToRequest(ADD_ROOM, "Phong 1");
+//		res = connector.sendData(req);
+//		System.out.println("response: " + res);
+//		Scanner sc = new Scanner(System.in);
+//		int t = sc.nextInt();
 	}
 	
 	public void startGame(int numPlayer) throws InvalidResponseException {

@@ -52,18 +52,41 @@ int main(int argc, char** argv) {
     servaddr.sin_family = AF_INET; 
     servaddr.sin_port = htons(serverPort); 
     servaddr.sin_addr.s_addr = inet_addr(serverAddr); 
+    char request[MAXLINE];
         
-    int n, len; 
+    int n, len, state;
+    state = 0; 
+    while(1){
+        switch(state){
+            case 0:
+                sendto(sockfd, (const char *)hello, strlen(hello), MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr)); 
+                printf("Hello message sent.\n"); 
+                        
+                n = recvfrom(sockfd, (char *)buffer, MAXLINE,  
+                            MSG_WAITALL, (struct sockaddr *) &servaddr, 
+                            &len); 
+                buffer[n] = '\0'; 
+                printf("Server : %s\n", buffer); 
+                state = 1;
+                break;
+            case 1:
+                request[0] = '\0';
+                printf("Request : ");
+                fgets(request, MAXLINE, stdin);
+                //request[strlen(request) - 1] = '\0';
+                sendto(sockfd, (const char *)request, strlen(request), MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
+                
+                buffer[0] = '\0';
+
+                n = recvfrom(sockfd, (char *)buffer, MAXLINE,  
+                            MSG_WAITALL, (struct sockaddr *) &servaddr, 
+                            &len); 
+                buffer[n] = '\0'; 
+                printf("Response : %s\n", buffer);
+                break;
+        }
         
-    sendto(sockfd, (const char *)hello, strlen(hello), MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr)); 
-    printf("Hello message sent.\n"); 
-            
-    n = recvfrom(sockfd, (char *)buffer, MAXLINE,  
-                MSG_WAITALL, (struct sockaddr *) &servaddr, 
-                &len); 
-    buffer[n] = '\0'; 
-    printf("Server : %s\n", buffer); 
-    
+    }
     close(sockfd); 
     return 0; 
 }

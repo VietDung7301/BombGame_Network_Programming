@@ -16,6 +16,7 @@ int startServer(int port) {
     int sockfd; 
     char buffer[MAXLINE]; 
     struct sockaddr_in servaddr, cliaddr; 
+    char *response;
         
     // Creating socket file descriptor 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { 
@@ -39,16 +40,15 @@ int startServer(int port) {
     } 
 
     printf("Server started at %d\n", port);
+    //const char* response;
+    int len, n;
     for (;;) {
-        int len, n; 
-    
-        len = sizeof(cliaddr);  //len is value/result 
-        
+        len = sizeof(cliaddr);  //len is value/result
         n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliaddr, &len); 
         buffer[n] = '\0';
-        const char* response = handlerRequest(buffer, cliaddr);
-        sendto(sockfd, response, strlen(response), MSG_CONFIRM, (const struct sockaddr *) &cliaddr, len); 
-        printf("Hello message sent.\n"); 
+        response = handlerRequest(buffer, cliaddr);
+        sendto(sockfd, response, strlen(response), MSG_CONFIRM, (const struct sockaddr *) &cliaddr, len);
+        //printf("Hello message sent.\n"); 
     }
      
         

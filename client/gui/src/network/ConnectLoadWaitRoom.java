@@ -8,9 +8,9 @@ import model.Room;
 import model.User;
 
 public class ConnectLoadWaitRoom {
-    private Connect connet;
+    private ServerConnector connet;
     private Room room;
-    public ConnectLoadWaitRoom(Connect connect){
+    public ConnectLoadWaitRoom(ServerConnector connect){
         this.connet=connect;
     }
     public void setRoom(String roomId){
@@ -18,14 +18,18 @@ public class ConnectLoadWaitRoom {
                 String[] response=connet.SendAndRecvData("#c007#&"+roomId+"$$");
                 Room room=new Room();
                 room.setId(roomId);
+            
                 room.setName(response[3]);
-                int numberUser=Integer.parseInt(response[6]);
-                User owner=new User("adc",response[5]);
+                room.setStatus(Integer.parseInt(response[5]));
+               room.setCheckforload(1);
+                int numberUser=Integer.parseInt(response[7]);
+                String[] ownerid=response[6].split("User");
+                User owner=new User(ownerid[1],response[6]);
                 owner.setIdScene(1);
                 List<User> listuser=new ArrayList<User>();
                 listuser.add(owner);
                 for(int i=0;i<numberUser-1;i++){
-                    User player=new User("av",response[i+8]);
+                    User player=new User(response[i+9].split("User")[1],response[i+9]);
                     player.setIdScene(i+2);
                     listuser.add(player);
                 }
