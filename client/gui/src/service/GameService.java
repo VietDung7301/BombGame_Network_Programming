@@ -36,7 +36,7 @@ public class GameService {
 	Converter converter;
 	
 	public GameService() {
-		this.connector = new ServerConnector();
+		this.connector = ServerConnector.getConn();
 		this.converter = new Converter();
 	}
 	

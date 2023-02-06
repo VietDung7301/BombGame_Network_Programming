@@ -40,10 +40,10 @@ public class ViewManager {
 	private Stage mainStage;
 	private List<ViewRoom> listroommap=new ArrayList<ViewRoom>();
 	//private Timer timer;
-	public ViewManager(User user,ServerConnector connect,Stage primaryStage) {
+	public ViewManager(User user, Stage primaryStage) {
 		try {
 			this.user=user;
-			this.connect=connect;
+			this.connect = ServerConnector.getConn();
 			this.mainStage=primaryStage;
 			//this.timer=new Timer();
 			initScenes();

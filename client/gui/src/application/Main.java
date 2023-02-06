@@ -14,14 +14,12 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			ServerConnector connect=new ServerConnector();
-			String[] result=connect.SendAndRecvData("#c000#");
+			ServerConnector connect = ServerConnector.getConn();
+			String[] result = connect.SendAndRecvData("#c000#");
 			User user=new User(result[3], result[2]);
-			ViewManager manager = new ViewManager(user,connect,primaryStage);
+			ViewManager manager = new ViewManager(user, primaryStage);
 			primaryStage = manager.getMainStage();
 			primaryStage.show();
-			
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

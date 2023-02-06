@@ -16,9 +16,16 @@ public class ServerConnector {
 	private int port;
 	private DatagramSocket socket;
 	
+	private static ServerConnector CONNECTOR;
 	
+	public static ServerConnector getConn() {
+		if (CONNECTOR == null) {
+			CONNECTOR = new ServerConnector();
+		}
+		return CONNECTOR;
+	}
 	
-	public ServerConnector(){
+	private ServerConnector(){
 		try {
 			this.socket = new DatagramSocket();
 			this.ip = InetAddress.getByName(SERVER_ADDRESS);
