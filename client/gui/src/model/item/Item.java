@@ -1,4 +1,4 @@
-package model;
+package model.item;
 
 import javafx.scene.Group;
 import javafx.scene.image.Image;
@@ -39,6 +39,4 @@ public abstract class Item extends Group{
 	public int getInRow() {
 		return inRow;
 	}
-	
-	public abstract void beAte(Character character);
 }

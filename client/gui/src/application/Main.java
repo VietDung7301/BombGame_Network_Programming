@@ -1,29 +1,23 @@
 package application;
-	
-import java.io.File;
-import model.Character;
+import model.User;
+import network.ServerConnector;
 
-import java.net.URL;
+import java.util.Timer;
 
 import controller.ViewManager;
 import javafx.application.Application;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
-import javafx.scene.Scene;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.Node;
-import javafx.scene.Parent;
+
 
 
 public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			ViewManager manager = new ViewManager();
+			ServerConnector connect = ServerConnector.getConn();
+			String[] result = connect.SendAndRecvData("#c000#");
+			User user=new User(result[3], result[2]);
+			ViewManager manager = new ViewManager(user, primaryStage);
 			primaryStage = manager.getMainStage();
 			primaryStage.show();
 		} catch (Exception e) {
@@ -32,6 +26,7 @@ public class Main extends Application {
 	}
 	
 	public static void main(String[] args) {
+		
 		launch(args);
 	}
 }

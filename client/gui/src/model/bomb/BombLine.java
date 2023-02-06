@@ -1,4 +1,4 @@
-package model;
+package model.bomb;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;

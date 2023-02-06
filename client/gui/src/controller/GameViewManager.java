@@ -3,13 +3,16 @@ package controller;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 
+import exception.InvalidResponseException;
 import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -20,15 +23,31 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import model.*;
-import model.Character;
+import model.character.Player;
+import model.barrier.Barrier;
+import model.bomb.*;
+import model.character.ControlPlayer;
+import model.common.Direction;
+import model.item.*;
+import service.GameResponse;
+import service.GameService;
 
 public class GameViewManager {
 	public static final int MAP_SIZE_X = 17;
 	public static final int MAP_SIZE_Y = 17;
 	public static final double CELL_SIZE = 710.0/17;
 	
-	private int numPlayer;
+	public static final KeyCode KEY_UP = KeyCode.UP;
+	public static final KeyCode KEY_DOWN = KeyCode.DOWN;
+	public static final KeyCode KEY_LEFT = KeyCode.LEFT;
+	public static final KeyCode KEY_RIGHT = KeyCode.RIGHT;
+	public static final KeyCode KEY_SPACE = KeyCode.SPACE;
+	
+	public static final Set<Integer> barrierValue = new HashSet<Integer> (
+			Arrays.asList(1, 2, 3, 4, 5, 9));
+			
+	
+	private GameService gameService;
 	
 	private AnchorPane gameMap;
 	private BorderPane gamePane;
@@ -37,15 +56,16 @@ public class GameViewManager {
 	
 	private Stage menuStage;
 	
-	private AnchorPane pauseBtn;
-	private Label pauseLabel;
 	
 	private ImageView santaClause;
 	
-	Random randItem = new Random();
 	long timeKey = 0;
 	
-	private Character[] character;
+	private int numPlayer;
+	private int controlPlayerPosition;
+	private Player[] playerList;
+	private ControlPlayer controlPlayer;
+	
 	
 	private Label[] liveLabel;
 	private Label[] powBombLabel;
@@ -53,12 +73,11 @@ public class GameViewManager {
 	private Label[] speedLabel;
 	private Label timeLabel;
 	private double timeLeft;
+	private AnchorPane quitBtn;
 	
-	
-	private ArrayList<Item> itemList = new ArrayList<Item>();
-	private ArrayList<Bomb> bombList = new ArrayList<Bomb>();
-	private ArrayList<BombLine> bombLineList = new ArrayList<BombLine>();
-	private ArrayList<BombCenter> bombCenterList = new ArrayList<BombCenter>();
+	private ArrayList<BombLine> bombLineList;
+	private ArrayList<BombCenter> bombCenterList;
+	private ArrayList<Boom> boomList;
 	
 //	1: Pine tree
 //	2: Snowman
@@ -71,36 +90,21 @@ public class GameViewManager {
 //	-2: Power item
 //	-3: Quantity item
 //	-4: Speed item
-	private static int map[][] = {
-		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-		{1, 0, 0, 3, 3, 4, 1, 0, 1, 0, 2, 0, 0, 0, 0, 0, 1},
-		{1, 0, 2, 3, 2, 5, 0, 0, 1, 5, 0, 0, 2, 0, 2, 0, 1},
-		{1, 0, 2, 0, 1, 1, 2, 3, 5, 5, 2, 2, 1, 0, 2, 0, 1},
-		{1, 0, 0, 0, 0, 0, 2, 2, 1, 1, 2, 0, 0, 0, 0, 0, 1},
-		{1,-1, 2, 1, 1, 4, 4, 0, 0, 0, 0, 0, 2, 1, 1, 0, 1},
-		{1, 0, 0, 2, 2, 3, 2, 2, 1, 0, 1, 0, 1, 1, 0, 0, 1},
-		{1, 2, 0, 0, 1, 4, 3, 9, 9, 9, 4, 0, 1, 0, 0, 2, 1},
-		{1, 0, 0, 2, 2, 4, 1, 9, 9, 9, 1, 0, 1, 2, 0, 3, 1},
-		{1, 0, 2, 1, 1, 0, 0, 9, 9, 9, 0, 3, 2, 1, 2, 4, 1},
-		{1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 0, 5, 0, 0, 0, 1},
-		{1, 0, 1, 0, 2, 2, 2, 0, 5, 0, 2, 1, 1, 0, 2, 0, 1},
-		{1, 0, 1, 0, 2, 3, 3, 4, 2, 0, 0, 0, 1, 0, 2, 0, 1},
-		{1, 0, 0, 0, 0, 0, 1, 0, 2, 5, 2, 0, 0, 0, 0, 0, 1},
-		{1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 2, 2, 0, 2, 1, 0, 1},
-		{1, 0, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-	};
+	private int map[][];
 				
 	AnimationTimer gameTimer;
 	
-	public GameViewManager(int numPlayer) {
+	public GameViewManager(int numPlayer, int controlPlayerPos) {
+		System.out.println("num: " + numPlayer + ' ' + controlPlayerPos);
 		this.numPlayer = numPlayer;
-		this.timeLeft = 150;
+		this.controlPlayerPosition = controlPlayerPos;
+		this.gameService = new GameService();
 		initializeStage();
+		initializeCharacter();
 		initializeLabel();
 		initializeButton();
-		initializeCharacter();
-		createKeyListeners();
+		initializeGameElement();
+		initializeKeyListeners();
 	}
 	
 	private void initializeStage() {
@@ -122,6 +126,18 @@ public class GameViewManager {
 		santaClause.setLayoutY(257.0);
 	}
 	
+	private void initializeCharacter() {
+		playerList = new Player[numPlayer];
+		for (int i=0; i < numPlayer; i++) {
+			if (i != controlPlayerPosition)
+				playerList[i] = new Player();
+			else {
+				controlPlayer = new ControlPlayer(KEY_UP,KEY_DOWN,KEY_LEFT,KEY_RIGHT,KEY_SPACE);
+				playerList[i] = controlPlayer;
+			}
+		}
+	}
+	
 	private void initializeLabel() {
 		liveLabel = new Label[4];
 		qtyBombLabel = new Label[4];
@@ -138,54 +154,35 @@ public class GameViewManager {
 	}
 	
 	private void initializeButton() {
-		pauseBtn = (AnchorPane) gamePane.lookup("#pause-btn");
-		pauseLabel = (Label) pauseBtn.lookup("#pause-label");
-		pauseBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
+		quitBtn = (AnchorPane) gamePane.lookup("#pause-btn");
+		quitBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent arg0) {
-				if (pauseLabel.getText().equals("Pause")) {
-					gameTimer.stop();
-					pauseLabel.setText("Resume");
-				} else {
-					gameTimer.start();
-					pauseLabel.setText("Pause");
-				}
-				
+				gameService.quitGame();
 			}
 		});
 	}
 	
-	private void createKeyListeners() {
+	private void initializeGameElement() {
+		bombLineList = new ArrayList<BombLine>();
+		bombCenterList = new ArrayList<BombCenter>();
+		boomList = new ArrayList<Boom>();
+	}
+	
+	private void initializeKeyListeners() {
 		gameScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent event) {
-				for (int i=0; i<4; i++) {
-					if (character[i] instanceof Player) {
-						Player player = (Player) character[i];
-						if (event.getCode() == player.getUpKey()) {
-							player.setGoUp(true);
-							player.setGoDown(false);
-							player.setGoLeft(false);
-							player.setGoRight(false);
-						} else if (event.getCode() == player.getDownKey()) {
-							player.setGoUp(false);
-							player.setGoDown(true);
-							player.setGoLeft(false);
-							player.setGoRight(false);
-						} else if (event.getCode() == player.getLeftKey()) {
-							player.setGoUp(false);
-							player.setGoDown(false);
-							player.setGoLeft(true);
-							player.setGoRight(false);
-						} else if (event.getCode() == player.getRightKey()) {
-							player.setGoUp(false);
-							player.setGoDown(false);
-							player.setGoLeft(false);
-							player.setGoRight(true);
-						} else if (event.getCode() == player.getBombKey()) {
-							player.setPlantingBomb(true);
-						}
-					}
+				if (event.getCode() == controlPlayer.getUpKey()) {
+					controlPlayer.setMovingDirection(Direction.UP);
+				} else if (event.getCode() == controlPlayer.getDownKey()) {
+					controlPlayer.setMovingDirection(Direction.DOWN);
+				} else if (event.getCode() == controlPlayer.getLeftKey()) {
+					controlPlayer.setMovingDirection(Direction.LEFT);
+				} else if (event.getCode() == controlPlayer.getRightKey()) {
+					controlPlayer.setMovingDirection(Direction.RIGHT);
+				} else if (event.getCode() == controlPlayer.getBombKey()) {
+					controlPlayer.setPlantingBomb(true);
 				}
 			}
 		});
@@ -193,21 +190,24 @@ public class GameViewManager {
 		gameScene.setOnKeyReleased(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(KeyEvent event) {
-				for (int i=0; i<4; i++) {
-					if (character[i] instanceof Player) {
-						Player player = (Player) character[i];
-						if (event.getCode() == player.getUpKey()) {
-							player.setGoUp(false);
-						} else if (event.getCode() == player.getDownKey()) {
-							player.setGoDown(false);
-						} else if (event.getCode() == player.getLeftKey()) {
-							player.setGoLeft(false);
-						} else if (event.getCode() == player.getRightKey()) {
-							player.setGoRight(false);
-						} else if (event.getCode() == player.getBombKey()) {
-							player.setPlantingBomb(false);
-						}
+				if (event.getCode() == controlPlayer.getUpKey()) {
+					if (controlPlayer.getMovingDirection() == Direction.UP) {
+						controlPlayer.setMovingDirection(Direction.NONE);
 					}
+				} else if (event.getCode() == controlPlayer.getDownKey()) {
+					if (controlPlayer.getMovingDirection() == Direction.DOWN) {
+						controlPlayer.setMovingDirection(Direction.NONE);
+					}
+				} else if (event.getCode() == controlPlayer.getLeftKey()) {
+					if (controlPlayer.getMovingDirection() == Direction.LEFT) {
+						controlPlayer.setMovingDirection(Direction.NONE);
+					}
+				} else if (event.getCode() == controlPlayer.getRightKey()) {
+					if (controlPlayer.getMovingDirection() == Direction.RIGHT) {
+						controlPlayer.setMovingDirection(Direction.NONE);
+					}
+				} else if (event.getCode() == controlPlayer.getBombKey()) {
+					controlPlayer.setPlantingBomb(false);
 				}
 			}
 		});
@@ -215,31 +215,8 @@ public class GameViewManager {
 	
 	
 	
-	private void initializeCharacter() {
-		Bot bot;
-		character = new Character[4];
-		if (numPlayer == 1) {
-			character[0] = new Player(0, 1.5*CELL_SIZE, 1.5*CELL_SIZE, KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, KeyCode.SPACE);
-			character[1] = new Bot(0, (MAP_SIZE_X-1.5) * CELL_SIZE, 1.5*CELL_SIZE);
-			bot = (Bot) character[1];
-			bot.autoPlay(character, map);
-		} else if (numPlayer == 2) {
-			character[0] = new Player(0, 1.5*CELL_SIZE, 1.5*CELL_SIZE, KeyCode.W, KeyCode.S, KeyCode.A, KeyCode.D, KeyCode.SPACE);
-			character[1] = new Player(0, (MAP_SIZE_X-1.5) * CELL_SIZE, 1.5*CELL_SIZE, KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, KeyCode.ENTER);
-		}
-		character[2] = new Bot(1, 1.5*CELL_SIZE, (MAP_SIZE_Y-1.5) * CELL_SIZE);
-		bot = (Bot) character[2];
-		bot.autoPlay(character, map);
-		character[3] = new Bot(1, (MAP_SIZE_X-1.5) * CELL_SIZE, (MAP_SIZE_Y-1.5) * CELL_SIZE);
-		bot = (Bot) character[3];
-		bot.autoPlay(character, map);
-	}
-	
-	
 	public void createNewGame(Stage menuStage) {
 		this.menuStage = menuStage;
-		this.menuStage.hide();
-		
 		createGameLoop();
 		gameStage.show();
 	}
@@ -250,14 +227,11 @@ public class GameViewManager {
 			
 			@Override
 			public void handle(long now) {
-				if (now - lastUpdate >= 30_000_000) {
+				if (now - lastUpdate >= 300_000_000L) {
 					lastUpdate = now;
-					updateTimeLeft();
-					moveCharacter();
-					setBomb();
+					updateGame();
 					bombBoom();
 					createGameElement();
-					eatItems();
 					updateLabel();
 					createBoomAnimation();
 				}
@@ -266,19 +240,40 @@ public class GameViewManager {
 		gameTimer.start();
 	}
 	
-	private void updateTimeLeft() {
-		this.timeLeft-= 0.03;
-		timeLabel.setText("" + ((int) timeLeft));
+	private void updateGame() {
+		try {
+			GameResponse newGameStatus = 
+					gameService.sendPlayerAction(
+							numPlayer, 
+							controlPlayer.isPlantingBomb(), 
+							controlPlayer.getMovingDirection()
+					);
+			
+			// Update Map
+			this.map = newGameStatus.getMap();
+			
+			// Update player infor
+			for (int i=0; i < numPlayer; i++) {
+				playerList[i].setBasicInfor(newGameStatus.getPlayerList()[i]);
+			}
+			
+			// Update timeLeft;
+			this.timeLeft = newGameStatus.getTimeLeft();
+			timeLabel.setText("" + ((int) this.timeLeft));
+			
+			// Update boom list
+			this.boomList = newGameStatus.getBoomList();
+		} catch (InvalidResponseException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void createGameElement() {
-		itemList.clear();
 		gameMap.getChildren().clear();
 		for (int j=0; j<MAP_SIZE_Y; j++) {
-			for (int c = 0; c<4; c++) {
-				if (Character.getCharacterRow(character[c].getLayoutY() + 20) == j) {
-					if (character[c].getLives() > 0)
-						createCharacter(character[c]);
+			for (int c = 0; c<numPlayer; c++) {
+				if (playerList[c].getLives() > 0 && getRowByPosY(playerList[c].getPosY()) == j) {
+						createPlayer(playerList[c]);
 				}
 			}
 			if (j == 7) {
@@ -314,86 +309,41 @@ public class GameViewManager {
 		}
 	}
 	
-	private void moveCharacter() {
-		for (int i=0; i<4; i++) {
-			if (character[i].isGoDown()) {
-				character[i].move(Character.DOWN, map, CELL_SIZE);
-			} else if (character[i].isGoUP()) {
-				character[i].move(Character.UP, map, CELL_SIZE);
-			} else if (character[i].isGoLeft()) {
-				character[i].move(Character.LEFT, map, CELL_SIZE);
-			} else if (character[i].isGoRight()) {
-				character[i].move(Character.RIGHT, map, CELL_SIZE);
-			}
-			
-			if (character[i].isGoDown() == false
-				&& character[i].isGoUP() == false
-				&& character[i].isGoLeft() == false
-				&& character[i].isGoRight() == false ) {
-					character[i].stop();
-				}
-		}
-		
-	}
-	
-	private void setBomb() {
-		for (int i=0; i<4; i++) {
-			int col = Character.getCharacterCol(character[i].getLayoutX() + 20);
-			int row = Character.getCharacterRow(character[i].getLayoutY() + 15);
-
-			if (character[i].isPlantingBomb()) {
-				if (map[row][col] == 0 && character[i].isCanSetBomb() == true) {
-					Bomb bomb = character[i].setBomb(row, col);
-					map[row][col] = 7;
-					bombList.add(bomb);
-				}
-			}
-		}
-	}
-	
 	private void bombBoom() {
-		Iterator<Bomb> iter = bombList.iterator();
+		Iterator<Boom> iter = boomList.iterator();
 		int row, col;
 		while (iter.hasNext()){
-			Bomb bomb = iter.next();
-			if (bomb.isBoom()) {
-				row = bomb.getInRow();
-				col = bomb.getInCol();
-				map[row][col] = 0;
-				bomb.getOwner().restoreBomb();
-				
-				long timeBoom = System.currentTimeMillis();
-				
-				BombCenter bombCenter = new BombCenter(row, col, timeBoom);
-				bombCenterList.add(bombCenter);
-				createBombCenter(row, col, bombCenter);
-				
-				
-				int[] ar = {-1, 0, 1, 0};
-				int[] ac = {0, -1, 0, 1};
-				boolean[] isBlocked = {false, false, false, false};
-				
-				for (int i = 1; i<=bomb.getLength(); i++) {
-					for (int j=0; j<4; j++) {
-						if (!isBlocked[j]) {
-							if (map[row + ar[j]*i][col + ac[j]*i] == 1 || map[row + ar[j]*i][col + ac[j]*i] == 2 || map[row + ar[j]*i][col + ac[j]*i] == 9) {
-								isBlocked[j] = true;
-								continue;
-							}
-							if (map[row + ar[j]*i][col + ac[j]*i] == 3 || map[row + ar[j]*i][col + ac[j]*i] == 4 || map[row + ar[j]*i][col + ac[j]*i] == 5) {
-								destroyBarrier(row + ar[j]*i, col + ac[j]*i);
-								isBlocked[j] = true;
-								continue;
-							}
-							BombLine bombLine = new BombLine(row + ar[j]*i, col + ac[j]*i, Math.abs(ac[j] * 90), timeBoom);
-							bombLineList.add(bombLine);
-							createBombLine(row + ar[j]*i, col + ac[j]*i, bombLine);						
-						}						
-					}
+			Boom boom = iter.next();
+			
+			row = boom.getInRow();
+			col = boom.getInCol();
+			
+			long timeBoom = System.currentTimeMillis();
+			
+			BombCenter bombCenter = new BombCenter(row, col, timeBoom);
+			bombCenterList.add(bombCenter);
+			createBombCenter(row, col, bombCenter);
+			
+			
+			int[] ar = {-1, 0, 1, 0};
+			int[] ac = {0, -1, 0, 1};
+			boolean[] isBlocked = {false, false, false, false};
+			
+			for (int i = 1; i <= boom.getLength(); i++) {
+				for (int j=0; j<4; j++) {
+					if (!isBlocked[j]) {
+						if (barrierValue.contains(map[row + ar[j]*i][col + ac[j]*i]) ) {
+							isBlocked[j] = true;
+							continue;
+						}
+						BombLine bombLine = new BombLine(row + ar[j]*i, col + ac[j]*i, Math.abs(ac[j] * 90), timeBoom);
+						bombLineList.add(bombLine);
+						createBombLine(row + ar[j]*i, col + ac[j]*i, bombLine);						
+					}						
 				}
-				
-				iter.remove();
 			}
+			
+			iter.remove();
 		}
 	}
 	
@@ -406,13 +356,7 @@ public class GameViewManager {
 				iter.remove();
 				continue;
 			}
-			for (int i=0; i<4; i++) {
-				if (bombLine.getInCol() == Character.getCharacterCol(character[i].getLayoutX() + 20)
-					&& bombLine.getInRow() == Character.getCharacterRow(character[i].getLayoutY() + 20) ) {
-						character[i].decreaseLive();
-					}
-						
-			}
+
 			createBombLine(bombLine.getInCol(), bombLine.getInRow(), bombLine);
 		}
 		
@@ -421,13 +365,6 @@ public class GameViewManager {
 			if (bombCenter.getCurrentAnimation() == 5) {
 				iter2.remove();
 				continue;
-			}
-			for (int i=0; i<4; i++) {
-				if (bombCenter.getInCol() == Character.getCharacterCol(character[i].getLayoutX() + 20)
-					&& bombCenter.getInRow() == Character.getCharacterRow(character[i].getLayoutY() + 20) ) {
-						character[i].decreaseLive();
-					}
-						
 			}
 			createBombCenter(bombCenter.getInCol(), bombCenter.getInRow(), bombCenter);
 		}
@@ -439,10 +376,6 @@ public class GameViewManager {
 		barrierView.setLayoutX((double) x*CELL_SIZE - (barrierImage.getWidth() - CELL_SIZE)/2);
 		barrierView.setLayoutY((double) y*CELL_SIZE - barrierImage.getHeight() + barrierImage.getWidth());
 		gameMap.getChildren().add(barrierView);
-	}
-	
-	private void destroyBarrier(int row, int col) {
-		map[row][col] = -(randItem.nextInt(4) + 1);
 	}
 	
 	private void createItem(int row, int col, int type) {
@@ -463,32 +396,15 @@ public class GameViewManager {
 		default:
 			break;
 		}
-		itemList.add(item);
 		gameMap.getChildren().add(item);
 	}
 	
-	private void eatItems() {
-		Iterator<Item> iter = itemList.iterator();
-		while (iter.hasNext()) {
-			Item item = iter.next();
-			for (int i=0; i<4; i++) {
-				if (item.getInCol() == Character.getCharacterCol(character[i].getLayoutX() + 20)
-				&& item.getInRow() == Character.getCharacterRow(character[i].getLayoutY() + 20) ) {
-					item.beAte(character[i]);
-					map[item.getInRow()][item.getInCol()] = 0;
-					iter.remove();
-					break;
-				}
-			}
-		}
-	}
-	
 	private void updateLabel() {
-		for (int i=0; i<4; i++) {
-			liveLabel[i].setText("" + character[i].getLives());
-			qtyBombLabel[i].setText("" + character[i].getQtyBomb());
-			powBombLabel[i].setText("" + character[i].getPowBomb());
-			speedLabel[i].setText("" + character[i].getSpeed());
+		for (int i=0; i < numPlayer; i++) {
+			liveLabel[i].setText("" + playerList[i].getLives());
+			qtyBombLabel[i].setText("" + playerList[i].getQtyBomb());
+			powBombLabel[i].setText("" + playerList[i].getPowBomb());
+			speedLabel[i].setText("" + playerList[i].getSpeed());
 		}
 	}
 	
@@ -504,8 +420,8 @@ public class GameViewManager {
 		gameMap.getChildren().add(bombCenter.getImage());
 	}
 	
-	private void createCharacter(Character character) {
-		gameMap.getChildren().add(character);
+	private void createPlayer(Player player) {
+		gameMap.getChildren().add(player);
 	}
 	
 	private void createBomb(int x, int y) {
@@ -513,5 +429,13 @@ public class GameViewManager {
 		bombView.setLayoutX((double) x*CELL_SIZE - (Bomb.WIDTH - CELL_SIZE)/2);
 		bombView.setLayoutY((double) y*CELL_SIZE - Bomb.HEIGHT + Bomb.WIDTH);
 		gameMap.getChildren().add(bombView);
+	}
+	
+	private int getRowByPosY(double posY) {
+		return (int) (posY/CELL_SIZE);
+	}
+	
+	private int getColByPosX(double posX) {
+		return (int) (posX/CELL_SIZE);
 	}
 }

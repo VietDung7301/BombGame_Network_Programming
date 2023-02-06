@@ -1,39 +1,60 @@
 package controller;
 
+//import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
+import java.util.ArrayList;
+
+import java.util.List;
+
+import java.util.Optional;
+import java.util.Timer;
+
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import model.Room;
+import model.User;
+import network.ServerConnector;
+import network.ConnectLoadWaitRoom;
+import network.ConnectLoadingRoom;
 
 public class ViewManager {
 	private static int WIDTH = 982;
 	private static int HEIGHT = 552;
-	
-	private Scene modeScene;
-	private Scene guideScene;
-	
+	private ServerConnector connect;
+    private User user;
 	private Pane mainPane;
 	private Scene mainScene;
 	private Stage mainStage;
-	public ViewManager() {
+	private List<ViewRoom> listroommap=new ArrayList<ViewRoom>();
+	//private Timer timer;
+	public ViewManager(User user, Stage primaryStage) {
 		try {
+			this.user=user;
+			this.connect = ServerConnector.getConn();
+			this.mainStage=primaryStage;
+			//this.timer=new Timer();
 			initScenes();
-			createButtons();
-			
+			ConnectLoadingRoom newConnect=new ConnectLoadingRoom(connect);
+			newConnect.setListRoom();
+			for(Room readyRoom:newConnect.getRoom()){
+				this.listroommap.add(new ViewRoom(readyRoom));
+			}
+			createButtonCreate(this.listroommap);
+            CreateLoadingbtn(this.listroommap);
+			Loadingwaitroom();
 			mainStage = new Stage();
 			mainStage.setScene(mainScene);
 			mainStage.setTitle("BoomIT 7");
@@ -45,79 +66,239 @@ public class ViewManager {
 	
 	private void initScenes() {
 		try {
-			URL url = new File("src/view/Scene_1.fxml").toURI().toURL();
+			URL url = new File("src/view/Scene_5.fxml").toURI().toURL();
 			mainPane = FXMLLoader.load(url);
 			mainScene = new Scene(mainPane, WIDTH, HEIGHT);
-
-			url = new File("src/view/Scene_2.fxml").toURI().toURL();		
-			modeScene = new Scene(FXMLLoader.load(url), WIDTH, HEIGHT);
-
-			url = new File("src/view/Scene_3.fxml").toURI().toURL();
-			guideScene = new Scene(FXMLLoader.load(url), WIDTH, HEIGHT);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-	private void createButtons() {
-		AnchorPane startBtn = (AnchorPane) mainScene.lookup("#start-btn");
-		AnchorPane guideBtn = (AnchorPane) mainScene.lookup("#guide-btn");
-		AnchorPane rankingBtn = (AnchorPane) mainScene.lookup("#ranking-btn");
-		ImageView backBtn1 = (ImageView) modeScene.lookup("#back-btn");
-		AnchorPane backBtn2 = (AnchorPane) guideScene.lookup("#back-btn");
-		AnchorPane _1pBtn = (AnchorPane) modeScene.lookup("#one-player");
-		AnchorPane _2pBtn = (AnchorPane) modeScene.lookup("#two-player");
-		
-		startBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
+	// tao button 
+	private List<ViewRoom> createButtonCreate(List<ViewRoom> listrooMap) {
+		AnchorPane createRoomBtn = (AnchorPane) mainScene.lookup("#create-room");
+		VBox listRoomFrame=(VBox) mainScene.lookup("#room-list1");
+		//List<ViewRoom> listrooMap=new ArrayList<ViewRoom>();
+		createRoomBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			int roomnumber=1;
 			@Override
 			public void handle(MouseEvent event) {
-				mainStage.setScene(modeScene);
+				try {
+					ConnectLoadingRoom newConnect=new ConnectLoadingRoom(connect);
+					newConnect.setListRoom();
+					for(Room readyRoom:newConnect.getRoom()){
+						if(hasRoom(new ViewRoom(readyRoom))==null){
+						listrooMap.add(new ViewRoom(readyRoom));
+						}
+					}
+				//Create a dialog to input room's name
+				TextInputDialog dialog = new TextInputDialog();
+			    dialog.setTitle("Input Dialog");
+			    dialog.setHeaderText("Enter room's name:");
+			    dialog.setContentText("Name: ");
+			    Image image = new Image("file:src/images/bomb.png");
+			    ImageView imageView = new ImageView(image);
+			    dialog.setGraphic(imageView);
+			    Optional<String> result = dialog.showAndWait();
+			    if (result.isPresent()) {
+			      String roomName=result.get();
+			      String inputString = "#c004#&"+roomName+"$$";
+				  //send and receive data from client to server
+				  String[] resul=connect.SendAndRecvData(inputString);
+				  
+				  if(!resul[1].equals("serr")){
+					//add room
+					List<User> listUser=new ArrayList<User>();
+					
+					Room newRoom=new Room(""+(listrooMap.size()+1),roomName,user.getId(),listUser,1);
+				    ViewRoom viewRoom=new ViewRoom(newRoom);
+                    viewRoom.setViewWaitRoom(mainStage, mainScene);
+					listRoomFrame.getChildren().addAll(viewRoom.getJoinbtn());
+					VBox.setMargin(viewRoom.getJoinbtn(),new Insets(15, 0, 0, 0));
+					listrooMap.add(viewRoom);
+					user.setIdScene(1);
+					viewRoom.addUser(user);
+					
+					    
+						mainStage.setScene(viewRoom.getViewWaitRoom());
+						
+						Loadingwaitroom();
+						MyTask mytask=new MyTask(connect, listroommap,mainStage);
+						mytask.setUser(user);
+						Timer timer=new Timer();
+						timer.scheduleAtFixedRate(mytask, 0, 500);
+						//StartRoom startroom=new StartRoom(listrooMap, user.getId());
+						//startroom.start();
+						//Thread.sleep(500);
+						
+					
+				  }
+
+				  for(ViewRoom room:listrooMap){
+					ConnectLoadWaitRoom connectLoadWaitRoom=new ConnectLoadWaitRoom(connect);
+					connectLoadWaitRoom.setRoom(room.getRoom().getId());
+					Room updateRoom=connectLoadWaitRoom.getRoom();
+					room=new ViewRoom(updateRoom);
+				  }
+				  for(ViewRoom room:listrooMap){
+					// join room
+					room.getJoinbtn().setOnMouseClicked(new EventHandler<MouseEvent>(){
+                         
+						@Override
+						public void handle(MouseEvent arg0) {
+							
+                       Loadingwaitroom();
+					   MyTask mytask=new MyTask(connect, listrooMap,mainStage);
+					   mytask.setUser(user);
+					   Timer timer=new Timer();
+					   timer.scheduleAtFixedRate(mytask, 0, 500);
+							/*try {
+							/* 	String[] response=connect.SendAndRecvData("#c005#&"+room.getRoom().getId()+"$$", 5500);
+								if(response[3].equals("success")){
+									System.out.println("asd");
+							mainStage.setScene(room.getViewWaitRoom());
+							//System.out.println("asd");
+							user.setIdScene(room.getRoom().getUser_List().size());
+							room.addUser(user);
+							
+								}
+							
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}*/ 
+						}
+							
+						
+
+							
+							
+							
+					
+						
+					}
+				 );
+				}
+			
+				  
+				   
+				
+				}
+			}catch(Exception e){
+
 			}
-		});
-		
-		guideBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				mainStage.setScene(guideScene);
-			}
-		});
-		
-		rankingBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-			}
-		});
-		
-		backBtn1.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				mainStage.setScene(mainScene);
-			}
-		});
-		
-		backBtn2.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				mainStage.setScene(mainScene);
-			}
-		});
-		
-		_1pBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				GameViewManager gameManager = new GameViewManager(1);
-				gameManager.createNewGame(mainStage);
-			}
-		});
-		
-		_2pBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
-				GameViewManager gameManager = new GameViewManager(2);
-				gameManager.createNewGame(mainStage);
-			}
-		});
+		}
+	});
+	return listrooMap;		
 	}
+
+
+
+	public void CreateLoadingbtn(List<ViewRoom> listroom){
+           ImageView loadingbtn=(ImageView) mainScene.lookup("#loading");
+		   VBox listRoomFrame=(VBox) mainScene.lookup("#room-list1");
+
+		   
+		   loadingbtn.setOnMouseClicked(new EventHandler<MouseEvent>(){
+           
+			@Override
+			public void handle(MouseEvent arg0) {
+				
+				try {
+					
+					ConnectLoadingRoom joinRoomConnect=new ConnectLoadingRoom(connect);
+					joinRoomConnect.setListRoom();
+					List<Room> ListRoom=joinRoomConnect.getRoom();
+					for(Room newRoom: ListRoom){
+						
+						ViewRoom viewRoom=new ViewRoom(newRoom);
+						if(hasRoom(viewRoom)!=null){
+						  ViewRoom oldRoom=hasRoom(viewRoom);
+                          listRoomFrame.getChildren().remove(oldRoom.getJoinbtn());
+						  listroom.remove(oldRoom);
+						}
+						viewRoom.setViewWaitRoom(mainStage, mainScene);
+						listRoomFrame.getChildren().addAll(viewRoom.getJoinbtn());
+						VBox.setMargin(viewRoom.getJoinbtn(),new Insets(15, 0, 0, 0));
+						listroom.add(viewRoom);
+						for(ViewRoom room:listroom){
+							ConnectLoadWaitRoom connectLoadWaitRoom=new ConnectLoadWaitRoom(connect);
+											connectLoadWaitRoom.setRoom(room.getRoom().getId());
+											Room updateRoom=connectLoadWaitRoom.getRoom();
+											room=new ViewRoom(updateRoom);
+						  }
+					    for(ViewRoom room:listroom){
+							// join room
+							room.getJoinbtn().setOnMouseClicked(new EventHandler<MouseEvent>(){
+		
+								@Override
+								public void handle(MouseEvent arg0) {
+									
+									//if(room.getRoom().getStatus()!=1){
+									Loadingwaitroom();
+									MyTask mytask=new MyTask(connect, listroommap,mainStage);
+									mytask.setUser(user);
+									Timer timer=new Timer();
+						
+						        timer.scheduleAtFixedRate(mytask, 0, 500);
+								if(room.getRoom().getStatus()!=1){
+									try {
+										String[] response=connect.SendAndRecvData("#c005#&"+room.getRoom().getId()+"$$");
+										if(response[3].equals("success")){
+									
+									//User user=new User("id1","Nhat Sang");
+									user.setIdScene(room.getRoom().getUser_List().size());
+									room.addUser(user);
+									mainStage.setScene(room.getViewWaitRoom());
+									System.out.println("dsa");
+										}
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}else{
+									System.out.println("Room started");
+								} 
+									
+									
+								}
+							
+								
+							});
+						  }
+						
+					}
+					
+				} catch (IOException e) {
+
+					e.printStackTrace();
+				}
+				
+			}
+
+		   } );
+	}
+	public void Loadingwaitroom(){
+		for(ViewRoom view:listroommap){
+			view.loadingWaitroom(connect,mainStage);
+		}
+		
+	}
+
+	public ViewRoom hasRoom(ViewRoom room){
+      for(ViewRoom view:this.listroommap){
+		if(view.getRoom().getName().equals(room.getRoom().getName())){
+			return view;
+		}
+	  }
+	  return null;
+	}
+	public void StartGame(){
+		for(ViewRoom view:this.listroommap){
+			
+		  }  
+	}
+	
+	
 	
 	
 	public Stage getMainStage() {
