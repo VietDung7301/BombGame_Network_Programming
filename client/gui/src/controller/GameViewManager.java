@@ -217,19 +217,24 @@ public class GameViewManager {
 	
 	public void createNewGame(Stage menuStage) {
 		this.menuStage = menuStage;
+		menuStage.hide();
 		createGameLoop();
 		gameStage.show();
 	}
 	
 	private void createGameLoop() {
 		gameTimer = new AnimationTimer() {
-			private long lastUpdate = 0;
+			long lastUpdate = 0;
+			long lastGetGameStatus = 0; 
 			
 			@Override
 			public void handle(long now) {
-				if (now - lastUpdate >= 300_000_000L) {
+				if (now - lastUpdate >= 30_000_000L) {
 					lastUpdate = now;
-					updateGame();
+					if (now - lastGetGameStatus >= 30_000_000L) {
+						lastGetGameStatus = now;
+						updateGame();
+					}
 					bombBoom();
 					createGameElement();
 					updateLabel();

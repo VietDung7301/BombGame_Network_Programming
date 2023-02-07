@@ -36,11 +36,11 @@ public class BombLine {
 	}
 	
 	public int getCurrentAnimation() {
-		if (System.currentTimeMillis() - timeKey >= 60) {
+		if (System.currentTimeMillis() - timeKey >= 30) {
 			currentAnimation = currentAnimation + 1;
 			timeKey = System.currentTimeMillis();
 			if (currentAnimation == 2) {
-				timeKey+= 60;
+				timeKey+= 30;
 			}
 		}
 		return this.currentAnimation;
