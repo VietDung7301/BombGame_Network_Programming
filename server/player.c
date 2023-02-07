@@ -33,8 +33,6 @@ Player* createPlayer(int userId, int playRoomId, double position_x, double posit
     player->speed = 1;
     player->currentPlayRoom = playRoomId;
     player->direction = direction;
-    player->layoutX = player->position_x - WIDTH/2;
-    player->layoutY = player->position_y - HEIGHT/1.5;
     player->lastTimeHit = clock();              // Hàm này trả về số tích tắc đồng hồ đã trôi qua kể từ khi bắt đầu chương trình
     return player;
 }
@@ -47,18 +45,7 @@ bool isCanSetBomb( Player* player ) {
 
     return false;
 }
-/*
-Bomb *setBomb( Player *player ) {
-    if (player->live <= 0 ) return NULL;
-    Bomb *bomb = NULL;
-    if ( isCanSetBomb( player ) ) {
-        bomb = createBomb( player );
-        player->bomb_seted++;
-    }
 
-    return bomb;
-}
-*/
 void restoreBomb( Player *player ) {
     player->bomb_seted--;
 }
@@ -92,7 +79,7 @@ void setDirection( Player *player, int direction ) {
 }
 
 double getDisMove( Player *player ) {
-    return 2.0 + player->speed*0.25;
+    return 3.0 + player->speed*0.2;
 }
 
 int getCharacterRow(double posY) {
@@ -114,9 +101,9 @@ void move( Player *player, int direction, int map[17][17] ) {
     int currentRow = getCharacterRow( player->position_y );
 
     if (direction == DOWN) {
-			int row = getCharacterRow( player->position_y - 62/1.5 + 41 + getDisMove( player ) );
-			int colL = getCharacterCol( player->position_x - 43/2 + 5);
-			int colR = getCharacterCol( player->position_x - 43/2 + 36);
+			int row = getCharacterRow( player->position_y + 18 + getDisMove( player ) );
+			int colL = getCharacterCol( player->position_x - 15);
+			int colR = getCharacterCol( player->position_x + 15);
 			
 			if ((map[row][colL] > 0 || map[row][colR] > 0)) {
 				moveable = false;
@@ -124,9 +111,9 @@ void move( Player *player, int direction, int map[17][17] ) {
 					moveable = true;
 			}
 		} else if (direction == UP) {
-			int row = getCharacterRow( player->position_y - 62/1.5 - getDisMove( player ));
-			int colL = getCharacterCol( player->position_x - 43/2 + 5);
-			int colR = getCharacterCol( player->position_x - 43/2 + 36);
+			int row = getCharacterRow( player->position_y  - 18 - getDisMove( player ));
+			int colL = getCharacterCol( player->position_x - 15 );
+			int colR = getCharacterCol( player->position_x + 15 );
 			
 			if (map[row][colL] > 0 || map[row][colR] > 0) {
 				moveable = false;
@@ -134,9 +121,9 @@ void move( Player *player, int direction, int map[17][17] ) {
 					moveable = true;
 			}
 		} else if (direction == LEFT) {
-			int col = getCharacterCol( player->position_x - 43/2 - getDisMove( player ));
-			int rowL = getCharacterRow( player->position_y - 62/1.5 + 10);
-			int rowR = getCharacterRow( player->position_y - 62/1.5 + 31);
+			int col = getCharacterCol( player->position_x  - 18 - getDisMove( player ));
+			int rowL = getCharacterRow( player->position_y - 15 );
+			int rowR = getCharacterRow( player->position_y + 15);
 			
 			if (map[rowL][col] > 0 || map[rowR][col] > 0) {
 				moveable = false;
@@ -144,9 +131,9 @@ void move( Player *player, int direction, int map[17][17] ) {
 					moveable = true;
 			}
 		} else if (direction == RIGHT) {
-			int col = getCharacterCol( player->position_x - 43/2 + 41 + getDisMove( player ));
-			int rowL = getCharacterRow( player->position_y - 62/1.5 + 10);
-			int rowR = getCharacterRow( player->position_y - 62/1.5 + 31);
+			int col = getCharacterCol( player->position_x  + 18 + getDisMove( player ));
+			int rowL = getCharacterRow( player->position_y - 15);
+			int rowR = getCharacterRow( player->position_y - 15);
 			
 			if (map[rowL][col] > 0 || map[rowR][col] > 0) {
 				moveable = false;
@@ -158,22 +145,18 @@ void move( Player *player, int direction, int map[17][17] ) {
 		if (moveable) {
             if(direction == UP){
                 player->position_y-= getDisMove( player );
-                player->layoutY = player->position_y - 62/1.5 - getDisMove( player );
             }
 
             if ( direction == DOWN ) {
                 player->position_y+= getDisMove( player );
-                player->layoutY = player->position_y - 62/1.5 + getDisMove( player );
             }
 
             if ( direction == LEFT ) {
                 player->position_x-= getDisMove( player );
-                player->layoutX = player->position_x - 43/2 - getDisMove( player );
             }
 
             if ( direction == RIGHT ) {
                 player->position_x+= getDisMove( player );
-                player->layoutX = player->position_x - 43/2 + getDisMove( player );
             }
 		}
 }

@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <stdbool.h>
 #include "user.h"
 #include "bomb.h"
 #include "player.h"
 #include "playRoom.h"
-#define TIME_BOMB 2
-#define TIME_ROOM 60
+#include "util.h"
+
+#define TIME_BOMB 2000000   // Thời gian cho đến khi bomb nổ (micro second)
+#define TIME_BOOM 60000    // Thời gian hiệu ứng nổ diễn ra (micro second)
 
 /*
     xu ly yeu cau cua player
@@ -40,7 +41,7 @@ void setBomb(Player* player,PlayRoom* room, bool isPlantingBomb){
 //xu ly pha vat can
 void destroyBarrier(int row, int col, PlayRoom* room){
     int random = (int) (rand() * (4 - 1 + 1.0)/(1.0 + RAND_MAX));
-    room->map[row][col] = - random;
+    room->map[row][col] = -random;
 }
 
 
@@ -54,11 +55,10 @@ void destroyBarrier(int row, int col, PlayRoom* room){
 void bombBoom(PlayRoom* room){
     int row, col, rowP, colP;
 
-    time_t seconds;
+    struct timeval now;
     for (int count=0; count<room->number_of_bomb; count++) {
-        seconds = time(NULL);
-        if(seconds - room->bomb_list[count]->createAt >= TIME_BOMB){
-            printf("bomb boom at: %d %d\n", room->bomb_list[count]->row, room->bomb_list[count]->col);
+        gettimeofday(&now, NULL);
+        if(getMicroSecond(room->bomb_list[count]->createAt, now) >= TIME_BOMB){
             //tao bomb trong boomList (boomList duoc dat trong room)
             Bomb *boom = (Bomb*) malloc(sizeof(Bomb));
             // tao ra 1 qua bom giong trong trong bomlist
@@ -66,7 +66,7 @@ void bombBoom(PlayRoom* room){
             boom->col = room->bomb_list[count]->col;
             boom->player_id = room->bomb_list[count]->player_id;
             boom->length = room->bomb_list[count]->length;
-            boom->createAt = room->bomb_list[count]->createAt + 2; //update time bomb no;
+            boom->createAt = now;        //update time bomb no;
             //them boom
             room->boom_list[room->number_of_boom] = boom;
             room->number_of_boom+=1;
@@ -92,7 +92,7 @@ void bombBoom(PlayRoom* room){
                     room->playerList[k]->live -= 1;
             }
             // Đường bomb
-            for(int i = 1;  i < room->bomb_list[count]->length; i++){
+            for(int i = 1;  i <= room->bomb_list[count]->length; i++){
                 for(int j = 0; j < 4; j++){
                     if (!isBlock[j]) {
                         if (room->map[row + ar[j]*i][col + ac[j]*i] == 1 || room->map[row + ar[j]*i][col + ac[j]*i] == 2 || room->map[row + ar[j]*i][col + ac[j]*i] == 9) {
@@ -125,15 +125,14 @@ void bombBoom(PlayRoom* room){
 
 // lay thong tin va update boom list
 void* updateBoomList(PlayRoom* room){
-    int count = 0;
-    time_t now = time(NULL);
-    while(room->boom_list[count]){
-        if(now - room->boom_list[count]->createAt >= 0.1){
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    for (int count=0; count < room->number_of_boom; count++) {
+        if(getMicroSecond(room->boom_list[count]->createAt, now) >= TIME_BOOM) {
             free(room->boom_list[count]);
             room->boom_list[count] = room->boom_list[room->number_of_boom - 1];
             room->number_of_boom -= 1;
         }
-        count++;
     }
 }
 
@@ -177,4 +176,5 @@ void handlePlayerAction(Player* player, PlayRoom* room, int direction, bool isPl
     eatItems(player, room);
     setBomb(player, room, isPlantingBomb);
     bombBoom(room);
+    updateBoomList(room);
 }
