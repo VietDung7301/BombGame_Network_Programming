@@ -303,9 +303,9 @@ char* startGame(char *request, struct sockaddr_in addr){
         return "#serr#&Ban khong phai chu phong$$";
     }
     // Nếu phòng chơi chỉ có 1 người chơi
-    if (room->quantity < 2) {
-        return "#serr#&Khong du nguoi choi$$";
-    }
+    // if (room->quantity < 2) {
+    //     return "#serr#&Khong du nguoi choi$$";
+    // }
 
     room->status = 1;
     PlayRoom *play_room = createPlayRoom();
@@ -436,7 +436,6 @@ int getDirection(char* request){
 
 char* getNewGameStatus(char* request, struct sockaddr_in addr){
     User* user = requestUser(addr);
-    printf("1");
     bool isPlantingBomb = getPlantingBomb(request);
     Player* player = getPlayerByUserId(user->id);
     PlayRoom* room = getPlayroomById(player->currentPlayRoom);
@@ -490,6 +489,3 @@ char* handlerRequest(char* request, struct sockaddr_in addr) {
     response = "#serr#&Unknow Error";
     return response;
 }
-
-
-

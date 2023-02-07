@@ -7,6 +7,8 @@
         "room.h": "c",
         "util.h": "c",
         "converter.h": "c",
-        "player.h": "c"
+        "player.h": "c",
+        "cstdint": "c",
+        "string.h": "c"
     }
 }

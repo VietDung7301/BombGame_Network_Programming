@@ -1,5 +1,5 @@
-#ifndef __CONTROLLER_H__
-#define __CONTROLLER_H__
+#ifndef __GAME_CONTROLLER_H__
+#define __GAME_CONTROLLER_H__
 
 void handlePlayerAction(Player* player,PlayRoom* room,int direction, bool isPlantingBomb);
 void setBomb(Player* player, bool isPlantingBomb);

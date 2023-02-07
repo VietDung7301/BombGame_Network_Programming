@@ -3,6 +3,10 @@
 #include <string.h>
 #include <stdio.h>
 
+int getMicroSecond(struct timeval start, struct timeval stop) {
+    return (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec;
+}
+
 bool isNumber(char a) {
     return ('0' <= a && a <= '9');
 }

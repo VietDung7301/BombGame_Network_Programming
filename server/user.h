@@ -16,7 +16,7 @@ typedef struct {
 } User;
 
 /**
- * param1: Địa chỉ user
+ * @param sockaddr_in Địa chỉ user
 */
 User* createUser(struct sockaddr_in);
 
