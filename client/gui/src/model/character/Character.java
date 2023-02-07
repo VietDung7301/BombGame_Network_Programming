@@ -8,13 +8,6 @@ public class Character extends Group {
 	protected double posX, posY;
 	protected Direction currentDirection;
 	
-	public Character(Direction direction, double posX, double posY) {
-		super();
-		this.currentDirection = direction;
-		this.posX = posX;
-		this.posY = posY;
-	}
-	
 	public Character(int lives, int qtyBomb, int powBomb, int speed, double posX, double posY) {
 		super();
 		this.lives = lives;

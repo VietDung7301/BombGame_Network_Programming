@@ -28,6 +28,7 @@ public class ServerConnector {
 	private ServerConnector(){
 		try {
 			this.socket = new DatagramSocket();
+			socket.setSoTimeout(100);
 			this.ip = InetAddress.getByName(SERVER_ADDRESS);
 			this.port = SERVER_PORT;
 		} catch (Exception e) {

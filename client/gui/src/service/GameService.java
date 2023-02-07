@@ -40,33 +40,6 @@ public class GameService {
 		this.converter = new Converter();
 	}
 	
-	public void testService() {
-//		System.out.println("Khoi tao ngoi choi: ");
-//		String req = converter.paramToRequest(NEW_USER);
-//		String res = connector.sendData(req);
-//		String userName = res.split("&")[1];
-//		System.out.println("User name: " + userName);
-//		
-//		System.out.println("Tao phong: ");
-//		req = converter.paramToRequest(ADD_ROOM, "Phong 1");
-//		res = connector.sendData(req);
-//		System.out.println("response: " + res);
-//		Scanner sc = new Scanner(System.in);
-//		int t = sc.nextInt();
-	}
-	
-	public void startGame(int numPlayer) throws InvalidResponseException {
-		String req = converter.paramToRequest(START_GAME);
-		String res = connector.sendData(req);
-		try {
-			String[] resList = res.split("&");
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new InvalidResponseException();
-		}
-	}
-	
 	public GameResponse sendPlayerAction(int numPlayer, boolean platingBomb, Direction direction) throws InvalidResponseException{
 		String req = converter.paramToRequest(PLAY_GAME, platingBomb? "1" : "0", direction.toString());
 		String res = connector.sendData(req);
@@ -103,9 +76,8 @@ public class GameService {
 				for (int j=0; j<17; j++) {
 					if ('0' <= str.charAt(index) && str.charAt(index) <= '9')
 						gameResponse.setMap(i, j, str.charAt(index) - '0');
-					else if (str.charAt(index) == '-') {
-						gameResponse.setMap(i, j, -(str.charAt(index + 1) - '0'));
-						index++;
+					else if ('a' <= str.charAt(index) && str.charAt(index) <= 'd') {
+						gameResponse.setMap(i, j, 'a' - str.charAt(index) - 1);
 					}
 					index++;
 				}

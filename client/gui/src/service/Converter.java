@@ -10,4 +10,7 @@ public class Converter {
 		str = str + "$$";
 		return str;
 	}
+	public String decodeGameStatus() {
+		return null;
+	}
 }

@@ -82,8 +82,8 @@ public class GameViewManager {
 //	1: Pine tree
 //	2: Snowman
 //	3: Hat
-//	4: Candle
-//	5: Socks
+//	4: Socks
+//	5: Candle
 //	7: Bomb
 //	9: Santa Clause
 //	-1: Live item
@@ -231,7 +231,7 @@ public class GameViewManager {
 			public void handle(long now) {
 				if (now - lastUpdate >= 30_000_000L) {
 					lastUpdate = now;
-					if (now - lastGetGameStatus >= 30_000_000L) {
+					if (now - lastGetGameStatus >= 60_000_000L) {
 						lastGetGameStatus = now;
 						updateGame();
 					}

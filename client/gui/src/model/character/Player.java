@@ -34,7 +34,7 @@ public class Player extends Character{
 		}
 		this.timeKey = 0;
 		this.setLayoutX(posX - WIDTH/2);
-		this.setLayoutY(posY - HEIGHT/1.5);
+		this.setLayoutY(posY - HEIGHT/1.3);
 		this.count++;
 		this.getChildren().setAll(image[getCurrentDirection().getValue()][0]);
 	}
@@ -61,6 +61,7 @@ public class Player extends Character{
 		this.posX = character.posX;
 		this.posY = character.posY;
 		this.setLayoutX(posX - WIDTH/2);
-		this.setLayoutY(posY - HEIGHT/1.5);
+		this.setLayoutY(posY - HEIGHT/1.3);
+		this.getChildren().setAll(image[currentDirection.getValue()][currentImage]);
 	}
 }
