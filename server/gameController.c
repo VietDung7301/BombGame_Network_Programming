@@ -30,7 +30,7 @@ void setBomb(Player* player,PlayRoom* room, bool isPlantingBomb){
     col = getCharacterCol(player->position_x);
     if(isPlantingBomb && player->bomb_seted < player->bomb_quantity && player->live > 0 && room->map[row][col]==0){
         player->bomb_seted += 1;
-        room->map[row][col] = 7;
+        setMap(room, row, col, 7);
         Bomb *bomb = createBomb(player);   // thoi gian tao bomb
         //them bomb
         room->bomb_list[room->number_of_bomb] = bomb;
@@ -40,8 +40,18 @@ void setBomb(Player* player,PlayRoom* room, bool isPlantingBomb){
 
 //xu ly pha vat can
 void destroyBarrier(int row, int col, PlayRoom* room){
-    int random = (int) (rand() * (4 - 1 + 1.0)/(1.0 + RAND_MAX));
-    room->map[row][col] = -random;
+    int random = rand() % 10;
+    if (random < 3) {           // 30% ô trống
+        setMap(room, row, col, 0);
+    } else if (random < 4) {    // 10% vật phẩm tăng mạng
+        setMap(room, row, col, -1);
+    } else if (random < 6) {    // 20% vật phẩm tăng sức mạnh
+        setMap(room, row, col, -2);
+    } else if (random < 8) {    // 20% vật phẩm tăng số lượng bomb
+        setMap(room, row, col, -3);
+    } else {                    // 20% vật phẩm tăng tốc
+        setMap(room, row, col, -4);
+    }
 }
 
 
@@ -77,7 +87,6 @@ void bombBoom(PlayRoom* room){
             bool isBlock[4] = {false, false, false, false};
             row = room->bomb_list[count]->row;
             col = room->bomb_list[count]->col;
-            room->map[row][col] = 0;
             for(int i = 0; i < room->quantity; i++){
                 if(room->bomb_list[count]->player_id == room->playerList[i]->playerId)
                     room->playerList[i]->bomb_seted -= 1;
@@ -114,7 +123,7 @@ void bombBoom(PlayRoom* room){
                 }
             }
             //xoa bomb
-            room->map[room->bomb_list[count]->row][room->bomb_list[count]->col] = 0;
+            setMap(room, row, col, 0);
             free(room->bomb_list[count]);
             room->bomb_list[count] = room->bomb_list[room->number_of_bomb - 1];
             room->number_of_bomb -= 1;
@@ -147,22 +156,22 @@ void eatItems(Player* player, PlayRoom* room){
             case -1:
                 if(room->playerList[i]->live < 3)
                     room->playerList[i]->live++;
-                room->map[row][col] = 0;
+                setMap(room, row, col, 0);
                 break;
             case -2:
                 if(room->playerList[i]->power < 5)
                     room->playerList[i]->power++;
-                room->map[row][col] = 0;
+                setMap(room, row, col, 0);
                 break;
             case -3:
                 if(room->playerList[i]->bomb_quantity < 5)
                     room->playerList[i]->bomb_quantity++;
-                room->map[row][col] = 0;
+                setMap(room, row, col, 0);
                 break;
             case -4:
                 if(room->playerList[i]->speed < 5)
                     room->playerList[i]->speed++;
-                room->map[row][col] = 0;
+                setMap(room, row, col, 0);
                 break;
             default:
                 break;

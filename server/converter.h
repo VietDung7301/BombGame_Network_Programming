@@ -10,4 +10,4 @@ char *toUserInfor(User*);
 char *responseS002 (char *new_name, bool is_success);
 char *responseS005 (bool is_success);
 char *responseS007 (Room* room, User* owner, User* player_list[]);
-char *responseS008 (PlayRoom *play_room,char* string_map,int timeLeft);
+char *responseS008 (PlayRoom *play_room, int timeLeft);
