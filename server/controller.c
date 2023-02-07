@@ -35,7 +35,7 @@ int currentPlayer = 0;
 Player *playerList[100];
 /**
  * Tạo người dùng mới và thêm vào danh sách người dùng
- * @addr: Địa chỉ
+ * @param addr Địa chỉ
  * @request: request
  * return: 1 string là response cho client
 */
@@ -49,7 +49,7 @@ char* addUser(struct sockaddr_in addr, char* request) {
 
 /**
  * Tìm kiếm user poin thông qua addr
- * @addr: địa chỉ client
+ * @param addr địa chỉ client
  * return: poin to user in user list
 */
 User* requestUser(struct sockaddr_in addr) {
@@ -95,25 +95,10 @@ char* getRoomList(){
     strcat(response, "$$");
     return response;
 }
-/**
- * Chuyển đổi mảng 2 chiều map sang chuỗi
- * @map: mảng 2 chiều map
- * return: chuỗi map
-*/
-char *convertMapToString(int map[17][17]) {
-    
-    char *result = (char*)malloc(290);
-    for ( int i = 0; i < 17; i++){
-        for (int j = 0; j < 17; j++){
-            strcat(result, intToStr(map[i][j]));
-        }
-    }
-    return result;
-}
 
 /**
  * Tìm kiếm user thông qua id
- * @id: mã user
+ * @param id mã user
  * return: poin to user in user list
 */
 User* getUserById(int id) {
@@ -128,7 +113,7 @@ User* getUserById(int id) {
 
 /**
  * Tìm kiếm room thông qua id
- * @id: mã room
+ * @param id mã room
  * return: poin to user in user list
 */
 Room* getRoomById(int id) {
@@ -204,8 +189,8 @@ char* addRoom(char* request, struct sockaddr_in addr) {
 /**
  * xử lý request đổi tên từ client
  * request struct: #c002#&new_name$$
- * @request: message từ client
- * @addr: địa chỉ client
+ * @param request message từ client
+ * @param addr địa chỉ client
  * return: response từ server
 */
 char* changeClientName(char *request, struct sockaddr_in addr){
@@ -239,8 +224,8 @@ char* changeClientName(char *request, struct sockaddr_in addr){
 /**
  * xử lý yêu cầu tham gia phòng client
  * request struct: #c005#&room_id$$
- * @request: message từ client
- * @addr: địa chỉ client
+ * @param request message từ client
+ * @param addr địa chỉ client
  * return: response từ server
 */
 char* joinRoom(char *request, struct sockaddr_in addr){
@@ -283,8 +268,8 @@ char* joinRoom(char *request, struct sockaddr_in addr){
 /**
  * xử lý yêu cầu bắt đầu trò chơi
  * request struct: #c006#
- * @request: message từ client
- * @addr: địa chỉ client
+ * @param request message từ client
+ * @param addr địa chỉ client
  * return: response từ server
 */
 char* startGame(char *request, struct sockaddr_in addr){
@@ -325,9 +310,6 @@ char* startGame(char *request, struct sockaddr_in addr){
             play_room->playerList[i] = createPlayer(room->playerList[i], play_room->id, 15.5*CELL, 15.5*CELL, 1);
         playerList[currentPlayer++] = play_room->playerList[i];
     }
-
-    char *convert_map_to_string = convertMapToString(play_room->map);
-    int timeLeft = getTimeLeft(play_room);
 
     return "#s006#&1$$";
 }
@@ -407,8 +389,6 @@ int getTimeLeft(PlayRoom* room){
 }
 
 int getDirection(char* request){
-    //todo
-    //printf("1");
     char direction_str[6];
     int count = 0;
     for (int i=9; request[i]!='$'; i++){
@@ -416,7 +396,6 @@ int getDirection(char* request){
         count++;
     }
     direction_str[count] = '\0';
-    // printf("%s\n", direction_str);
     if(strcmp(direction_str, "down") == 0)
         return 0;
     
@@ -447,9 +426,7 @@ char* getNewGameStatus(char* request, struct sockaddr_in addr){
 
     int timeLeft = getTimeLeft(room);
 
-    char* map_to_str = convertMapToString(room->map);
-
-    return responseS008(room, map_to_str, timeLeft);
+    return responseS008(room, timeLeft);
 }
 
 /**

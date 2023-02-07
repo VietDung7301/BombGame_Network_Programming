@@ -100,13 +100,13 @@ char *responseS007 (Room* room, User* owner, User* player_list[]){
  * ...&tọa độ x bomb 1 nổ&tọa độ y bomb 1 nổ&tọa độ x bomb 2 nổ&
  * ...&Thời gian còn lại của trò chơi$$
 */
-char *responseS008 (PlayRoom *play_room,char* string_map,int timeLeft){
+char *responseS008 (PlayRoom *play_room, int timeLeft){
     
     char *result = (char*)malloc(1000);
     // response id
     strcat(result, "#s008#&");
     // map
-    strcat(result, string_map);
+    strcat(result, play_room->smap);
     strcat(result, "&");
     // player n
     for(int i=0; i < play_room->quantity; i++){

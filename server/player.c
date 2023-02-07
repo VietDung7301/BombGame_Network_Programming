@@ -2,9 +2,10 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include<time.h>
+#include <time.h>
 #include "bomb.h"
 #include "player.h"
+#include "util.h"
 
 
 int playerId = 0;
@@ -17,6 +18,7 @@ const int NONE = 4;
 const double CELL_SIZE = 710.0/17;
 const double HEIGHT = 62;               // height of image that display as character
 const double WIDTH = 43;                // width of image that display as character
+struct timeval timeKey;
 
 Player* createPlayer(int userId, int playRoomId, double position_x, double position_y, int direction) {
     playerId++;
@@ -93,12 +95,21 @@ int getCharacterCol(double posX) {
 }
 
 void move( Player *player, int direction, int map[17][17] ) {
-    if ( player->live <= 0) return;
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    if ( direction == NONE || player->live <= 0) return;
 
     bool moveable = true;
 
+    if (getMicroSecond(timeKey, now) > 100000) {
+        player->currentImage = (player->currentImage + 1) % 4;
+        timeKey = now;
+    }
+
     int currentCol = getCharacterCol( player->position_x );
     int currentRow = getCharacterRow( player->position_y );
+
+    player->direction = direction;
 
     if (direction == DOWN) {
 			int row = getCharacterRow( player->position_y + 18 + getDisMove( player ) );
@@ -133,7 +144,7 @@ void move( Player *player, int direction, int map[17][17] ) {
 		} else if (direction == RIGHT) {
 			int col = getCharacterCol( player->position_x  + 18 + getDisMove( player ));
 			int rowL = getCharacterRow( player->position_y - 15);
-			int rowR = getCharacterRow( player->position_y - 15);
+			int rowR = getCharacterRow( player->position_y + 15);
 			
 			if (map[rowL][col] > 0 || map[rowR][col] > 0) {
 				moveable = false;
