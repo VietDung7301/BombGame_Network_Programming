@@ -231,7 +231,7 @@ public class GameViewManager {
 			public void handle(long now) {
 				if (now - lastUpdate >= 30_000_000L) {
 					lastUpdate = now;
-					if (now - lastGetGameStatus >= 60_000_000L) {
+					if (now - lastGetGameStatus >= 80_000_000L) {
 						lastGetGameStatus = now;
 						updateGame();
 					}

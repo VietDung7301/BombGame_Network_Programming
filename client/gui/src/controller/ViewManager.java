@@ -125,7 +125,7 @@ public class ViewManager {
 						MyTask mytask=new MyTask(connect, listroommap,mainStage);
 						mytask.setUser(user);
 						Timer timer=new Timer();
-						timer.scheduleAtFixedRate(mytask, 0, 500);
+						timer.scheduleAtFixedRate(mytask, 0, 1000);
 						//StartRoom startroom=new StartRoom(listrooMap, user.getId());
 						//startroom.start();
 						//Thread.sleep(500);
